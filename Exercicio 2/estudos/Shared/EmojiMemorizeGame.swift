@@ -11,7 +11,7 @@ class EmojiMemorizeGame : ObservableObject{
     @Published private var gameModel: MemorizeGame<String> = createMemoryGame()
     
     private static func createMemoryGame() -> MemorizeGame<String> {
-            let name = EmojiConstants.emojisNames.shuffled()[0]
+        let name = EmojiConstants.emojisDict.keys.shuffled()[0]
             let emojis = EmojiConstants.emojisDict[name] ?? []
             
             return MemorizeGame(numberOfPairsOfCards: 5, newName: name) { pairIndex in
@@ -48,8 +48,6 @@ class EmojiMemorizeGame : ObservableObject{
     
     // MARK - Constants
     private struct EmojiConstants {
-            static let emojisNames = ["Faces", "Body", "Flags"]
-            
             static let emojisDict: [String: [String]] = [
                 "Faces": ["🥸", "🧐", "🤓", "🙃", "🥳", "😲"],
                 "Body": ["👃", "🦷", "🦻", "🫁", "👀"],
