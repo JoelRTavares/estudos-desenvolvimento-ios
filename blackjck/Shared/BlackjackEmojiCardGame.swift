@@ -17,13 +17,14 @@ class BlackJackEmojiCardGame:ObservableObject {
         
         let card = BlackJackEmojiCardGame.cards[cardIndex]
         let cardVal: Int
+        let ace = cardIndex == 0 ? true : false
         if cardIndex < 9{
             cardVal = cardIndex + 1
         }else{
             cardVal = 10
         }
         
-        return CardGame.Card(content: card, cardValue: cardVal, isFaceUp: isFaceUp, id: UUID())
+        return CardGame.Card(content: card, cardValue: cardVal, isFaceUp: isFaceUp, isAce: ace, id: UUID())
         
     }
     

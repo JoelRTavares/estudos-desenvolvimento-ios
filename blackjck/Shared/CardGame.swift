@@ -33,11 +33,24 @@ struct CardGame<CardContent> where CardContent:Equatable{
     }
     
     var playerSum : Int {
-        playerCards.reduce(0) { $0 + $1.cardValue}
+        let cardsWithoutAce = playerCards.contains { $0.isAce }
+        let cardsSum = playerCards.reduce(0) { $0 + $1.cardValue}
+        if cardsWithoutAce && cardsSum + 10 <= 21 {
+            return cardsSum + 10
+        }
+        
+        return cardsSum
     }
     
     var dealerSum : Int {
-        dealerCards.filter {$0.isFaceUp} .reduce(0) { $0 + $1.cardValue}
+        let cardsWithoutAce = dealerCards.contains { $0.isAce }
+        let cardsSum = dealerCards.filter {$0.isFaceUp} .reduce(0) { $0 + $1.cardValue}
+        if cardsWithoutAce && cardsSum + 10 <= 21 {
+            return cardsSum + 10
+        }
+        
+        return cardsSum
+        
     }
     
     init(cardFactory: @escaping (Bool) -> Card){
@@ -52,10 +65,12 @@ struct CardGame<CardContent> where CardContent:Equatable{
         self.cardFactory = cardFactory
     }
     
+    
     struct Card: Identifiable, Equatable{
         let content: CardContent
         let cardValue: Int
         var isFaceUp = false
+        let isAce : Bool
         
         let id: UUID 
     }
