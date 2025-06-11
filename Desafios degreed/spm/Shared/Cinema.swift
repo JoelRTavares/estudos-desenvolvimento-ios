@@ -30,7 +30,17 @@ struct Cinema: Identifiable{
         var overview: String
         var releaseDate: Date
         var genres: Array<Genre>
-    
+        var cast: Array<Actor>
+        var duration: String
+        var photos: Array<String>
+        
+        struct Actor: Identifiable{
+            let id: Int
+            var actorName: String
+            var roleName: String
+            var profileImage: String? = nil
+        }
+        
         struct Genre: Identifiable, Equatable{
             let id: Int
             var name: String
@@ -43,8 +53,3 @@ struct Cinema: Identifiable{
     }
 
 }
-
-
-//extension Cinema.Movie{
-    
-//}
