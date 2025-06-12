@@ -8,22 +8,35 @@
 import SwiftUI
 
 struct MovieDetailsView: View {
+    @EnvironmentObject var themeVM: ThemeViewModel
     @State var showMore = false
     
     var movie : Cinema.Movie
     
-    init(_ mov: Cinema.Movie){
-        movie = mov
+    init(_ mov: Cinema.Movie) {
+            movie = mov
+            
+            UITableView.appearance().backgroundColor = .clear
+            UITableViewCell.appearance().backgroundColor = .clear
+            UITableView.appearance().separatorStyle = .none
     }
     var body: some View {
         NavigationView{
-            Form{
-                backgroundAndInfo
-                synopsis
-                cast
-                photos
+            ZStack{
+                themeVM.currentTheme.background
+                            .edgesIgnoringSafeArea(.all)
+                Form{
+                    backgroundAndInfo
+                    synopsis
+                    cast
+                    photos
+                }
+                .background(themeVM.currentTheme.background)
+                
             }
         }
+        
+        .background(themeVM.currentTheme.background)
     }
     
     var backgroundAndInfo: some View{
@@ -33,6 +46,7 @@ struct MovieDetailsView: View {
                 .aspectRatio(16/9, contentMode: .fit)
             Text(movie.originalTitle)
                 .font(.title)
+                .foregroundColor(themeVM.currentTheme.text)
             HStack{
                 Text("\(String(format:"%.1f", movie.voteAverage))")
                     .font(.largeTitle)
@@ -42,8 +56,11 @@ struct MovieDetailsView: View {
                     Text("\(movie.genres.map{$0.name}.joined(separator: ", "))")
                 }
                 .font(.title2)
+                .foregroundColor(themeVM.currentTheme.text)
             }
+                
         }
+        .listRowBackground(themeVM.currentTheme.background)
     }
     
     var synopsis: some View{
@@ -67,6 +84,9 @@ struct MovieDetailsView: View {
                 }
             }
         }
+        .foregroundColor(themeVM.currentTheme.text)
+        .listRowBackground(themeVM.currentTheme.background)
+        
     }
     
     var cast: some View{
@@ -74,18 +94,23 @@ struct MovieDetailsView: View {
             header:
                 HStack {
                     Text("Cast")
+                        .foregroundColor(themeVM.currentTheme.text)
                     Spacer()
                     NavigationLink("View All") {
                         FullCastView(cast: movie.cast)
+                        .environmentObject(themeVM)
+                        
                     }
                 }
         ){
             let actors = movie.cast.prefix(3)
 
             ForEach(actors){ act in
-                MovieDetailsView.castRow(name: act.actorName, role: act.roleName, profImage: act.profileImage)
+                MovieDetailsView.castRow(name: act.actorName, role: act.roleName, profImage: act.profileImage, themeVM)
             }
         }
+        .listRowBackground(themeVM.currentTheme.background)
+        
     }
     
     var photos: some View{
@@ -93,9 +118,11 @@ struct MovieDetailsView: View {
             header:
                 HStack {
                     Text("Photos")
+                        .foregroundColor(themeVM.currentTheme.text)
                     Spacer()
                     NavigationLink("View All") {
                         FullPhotosView(photos: movie.photos)
+                            .environmentObject(themeVM)
                     }
                 }
         ){
@@ -108,20 +135,34 @@ struct MovieDetailsView: View {
                 }
             }
         }
+        .listRowBackground(themeVM.currentTheme.background)
+        
     }
     
     struct FullCastView: View {
+        @EnvironmentObject var themeVM: ThemeViewModel
         let cast: [Cinema.Movie.Actor]
 
         var body: some View {
-            List(cast) { actor in
-                castRow(name: actor.actorName, role: actor.roleName, profImage: actor.profileImage)
+            ScrollView {
+                VStack(alignment:.center, spacing: 16) {
+            
+                    ForEach(cast) { act in
+                        castRow(name: act.actorName, role: act.roleName, profImage: act.profileImage, themeVM)
+                    }
+            
+                }
+                .background(themeVM.currentTheme.background)
+                .padding()
             }
+            .background(themeVM.currentTheme.background)
             .navigationTitle("Cast & Crew")
+            .foregroundColor(themeVM.currentTheme.text)
         }
     }
     
     struct FullPhotosView: View {
+        @EnvironmentObject var themeVM: ThemeViewModel
         let photos: [String]
 
         var body: some View {
@@ -134,21 +175,24 @@ struct MovieDetailsView: View {
                             .cornerRadius(8)
                     }
                 }
+                .background(themeVM.currentTheme.background)
                 .padding()
             }
+            .background(themeVM.currentTheme.background)
             .navigationTitle("Photos")
+            .foregroundColor(themeVM.currentTheme.text)
         }
     }
 
-    private static func castRow(name: String, role: String, profImage: String?) -> some View {
-        HStack {
+    private static func castRow(name: String, role: String, profImage: String?, _ themeVM: ThemeViewModel) -> some View {
+        
+        return HStack {
             if let image = profImage{
                 Image(image)
                     .resizable()
                     .clipShape(Circle())
             }else{
                 Image(systemName: "person.crop.circle")
-                
             }
            
             Text(name)
@@ -158,6 +202,7 @@ struct MovieDetailsView: View {
                 
         }
         .font(.title3)
+        .foregroundColor(themeVM.currentTheme.text)
     }
 }
 

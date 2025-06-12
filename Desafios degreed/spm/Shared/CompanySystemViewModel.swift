@@ -46,7 +46,7 @@ class CompanySystemViewModel: ObservableObject{
         actors.append(Cinema.Movie.Actor(id: 1, actorName: "Fulano de Tal", roleName: "Zé Jacaré"))
         actors.append(Cinema.Movie.Actor(id: 2, actorName: "Ciclno de Tal", roleName: "Jose Pereira"))
         actors.append(Cinema.Movie.Actor(id: 3, actorName: "Deutrano de Tal", roleName: "Zé Carlos"))
-        
+        actors.append(Cinema.Movie.Actor(id: 4, actorName: "Zeca de Tal", roleName: "Carlos Araujo"))
         var movies: Array<Cinema.Movie> = []
         movies.append(Cinema.Movie(id: 2, voteAverage: 4.1, title: "Exterminado", originalTitle: "The death", popularity: 3.7, posterPath: "forja", backdropPath: "outrolink.jpeg", overview: "Algum texto", releaseDate: Date() + 3.years, genres: genre1, cast: actors, duration:"2hr 10m", photos:["forja_background", "forja_background", "forja_background"]))
         
