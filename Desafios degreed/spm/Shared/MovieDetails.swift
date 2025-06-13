@@ -146,17 +146,18 @@ struct MovieDetailsView: View {
         var body: some View {
             ScrollView {
                 VStack(alignment:.center, spacing: 16) {
-            
+                    Text("Cast & Crew")
+                        .font(.title)
+                        .foregroundColor(themeVM.currentTheme.text)
                     ForEach(cast) { act in
                         castRow(name: act.actorName, role: act.roleName, profImage: act.profileImage, themeVM)
                     }
-            
                 }
                 .background(themeVM.currentTheme.background)
                 .padding()
             }
             .background(themeVM.currentTheme.background)
-            .navigationTitle("Cast & Crew")
+            
             .foregroundColor(themeVM.currentTheme.text)
         }
     }
@@ -168,6 +169,9 @@ struct MovieDetailsView: View {
         var body: some View {
             ScrollView {
                 VStack(alignment:.center, spacing: 16) {
+                    Text("Cast & Crew")
+                        .font(.title)
+                        .foregroundColor(themeVM.currentTheme.text)                    
                     ForEach(photos.indices, id: \.self) { index in
                         Image(photos[index])
                             .resizable()
@@ -179,7 +183,6 @@ struct MovieDetailsView: View {
                 .padding()
             }
             .background(themeVM.currentTheme.background)
-            .navigationTitle("Photos")
             .foregroundColor(themeVM.currentTheme.text)
         }
     }
