@@ -11,6 +11,7 @@ protocol MovieServiceProtocol {
     func fetchUpcomingMovies() async throws -> [MovieDTO]
     func fetchGenres() async throws -> [GenreDTO]
     func fetchCast(movieId: Int) async throws -> [ActorDTO]
+    func fetchPhotos(movieId: Int) async throws -> [ImageDTO]
 }
 
 final class MovieService: MovieServiceProtocol {
@@ -45,6 +46,12 @@ final class MovieService: MovieServiceProtocol {
         return response.cast
     }
     
+    func fetchPhotos(movieId: Int) async throws -> [ImageDTO] {
+        let endpoint = "\(baseURL)/movie/\(movieId)/images?api_key=\(apiKey)"
+        let data = try await performRequest(endpoint: endpoint)
+        let response = try JSONDecoder().decode(PhotosResponseDTO.self, from: data)
+        return response.backdrops
+    }
     // Método privado para evitar repetição de código
     private func performRequest(endpoint: String) async throws -> Data {
         guard let url = URL(string: endpoint) else { throw MovieError.InvalidUrl }

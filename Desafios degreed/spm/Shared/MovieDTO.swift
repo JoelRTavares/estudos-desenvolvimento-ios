@@ -44,3 +44,11 @@ struct ActorDTO: Decodable {
     let character: String
     let profile_path: String?
 }
+
+struct PhotosResponseDTO: Decodable{
+    let backdrops: [ImageDTO]
+}
+
+struct ImageDTO: Decodable {
+    let file_path: String?
+}

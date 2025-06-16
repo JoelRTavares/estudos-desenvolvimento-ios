@@ -26,7 +26,7 @@ class CompanySystemViewModel: ObservableObject{
         self.movies = []
         
         Task { @MainActor in
-            await loadData()//A Warning
+            await loadData()
         }
     }
     
@@ -74,6 +74,7 @@ class CompanySystemViewModel: ObservableObject{
                     group.addTask{
                         do{
                             let cast = try await self.movieService.fetchCast(movieId: movieDTO.id)
+                            let photos = try await self.movieService.fetchPhotos(movieId: movieDTO.id)
                             
                             // 3. Mapeia genre_ids para objetos Genre
                             let movieGenres = genres.filter { genre in
@@ -102,7 +103,9 @@ class CompanySystemViewModel: ObservableObject{
                                         profile_path: "https://image.tmdb.org/t/p/w500\(actor.profile_path ?? "")"
                                     )
                                 },
-                                photos: [] // Inicializado vazio ou pode ser preenchido posteriormente
+                                photos: photos.map { mov in
+                                    "https://image.tmdb.org/t/p/w500\(mov.file_path ?? "")"
+                                } 
                             )
                             return movie
                         }catch{

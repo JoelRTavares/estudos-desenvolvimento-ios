@@ -144,9 +144,29 @@ struct MovieDetailsView: View {
             let photos = movie.photos.prefix(3)
             HStack{
                 ForEach(photos.indices, id:\.self){ index in
-                Image(photos[index])
-                        .resizable()
-                        .aspectRatio(16/9, contentMode: .fit)
+                    AsyncImage(url: URL(string: photos[index]))
+                    { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                                .frame(width: 48, height: 48)
+                                
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(16/9, contentMode: .fit)
+                                .cornerRadius(8)
+                                
+                        case .failure:
+                            Image(systemName: "photo")
+                            .resizable()
+                            .aspectRatio(16/9, contentMode: .fit)
+                            .cornerRadius(8)
+                                
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
                 }
             }
         }
@@ -184,14 +204,33 @@ struct MovieDetailsView: View {
         var body: some View {
             ScrollView {
                 VStack(alignment:.center, spacing: 16) {
-                    Text("Cast & Crew")
+                    Text("Photos")
                         .font(.title)
                         .foregroundColor(themeVM.currentTheme.text)                    
                     ForEach(photos.indices, id: \.self) { index in
-                        Image(photos[index])
-                            .resizable()
-                            .aspectRatio(16/9, contentMode: .fit)
-                            .cornerRadius(8)
+                        AsyncImage(url: URL(string: photos[index]))
+                        { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView()
+                                    .frame(width: 48, height: 48)
+                                    
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(16/9, contentMode: .fit)
+                                    .cornerRadius(8)
+                                    
+                            case .failure:
+                                Image(systemName: "photo")
+                                .resizable()
+                                .aspectRatio(16/9, contentMode: .fit)
+                                .cornerRadius(8)
+                                    
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
                     }
                 }
                 .background(themeVM.currentTheme.background)
