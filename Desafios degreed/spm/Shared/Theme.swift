@@ -12,7 +12,7 @@ enum ThemeType {
     case dark
 }
 
-struct Theme {
+struct Theme: Equatable {
     let background: Color
     let primary: Color
     let secondary: Color

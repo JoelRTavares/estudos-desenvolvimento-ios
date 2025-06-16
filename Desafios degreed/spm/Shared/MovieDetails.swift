@@ -41,9 +41,24 @@ struct MovieDetailsView: View {
     
     var backgroundAndInfo: some View{
         Section{
-            Image("forja_background")
-                .resizable()
-                .aspectRatio(16/9, contentMode: .fit)
+            AsyncImage(url: URL(string: movie.backdropPath))
+            { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(16/9, contentMode: .fit)
+                case .failure:
+                    Image(systemName: "photo")
+                        .resizable()
+                        .aspectRatio(16/9, contentMode: .fit)
+                @unknown default:
+                    EmptyView()
+                }
+            }
+                
             Text(movie.originalTitle)
                 .font(.title)
                 .foregroundColor(themeVM.currentTheme.text)
@@ -52,7 +67,7 @@ struct MovieDetailsView: View {
                     .font(.largeTitle)
                     .foregroundColor(.red)
                 VStack(alignment: .leading){
-                    Text("\(movie.duration) | R")
+                    Text("2Hr 10m | R")
                     Text("\(movie.genres.map{$0.name}.joined(separator: ", "))")
                 }
                 .font(.title2)
@@ -106,7 +121,7 @@ struct MovieDetailsView: View {
             let actors = movie.cast.prefix(3)
 
             ForEach(actors){ act in
-                MovieDetailsView.castRow(name: act.actorName, role: act.roleName, profImage: act.profileImage, themeVM)
+                MovieDetailsView.castRow(name: act.name, role: act.character, profImage: act.profile_path, themeVM)
             }
         }
         .listRowBackground(themeVM.currentTheme.background)
@@ -150,7 +165,7 @@ struct MovieDetailsView: View {
                         .font(.title)
                         .foregroundColor(themeVM.currentTheme.text)
                     ForEach(cast) { act in
-                        castRow(name: act.actorName, role: act.roleName, profImage: act.profileImage, themeVM)
+                        castRow(name: act.name, role: act.character, profImage: act.profile_path, themeVM)
                     }
                 }
                 .background(themeVM.currentTheme.background)
@@ -191,18 +206,44 @@ struct MovieDetailsView: View {
         
         return HStack {
             if let image = profImage{
-                Image(image)
-                    .resizable()
-                    .clipShape(Circle())
+                AsyncImage(url: URL(string: image))
+                { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                            .frame(width: 48, height: 48)
+                            
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 48, height: 48)
+                            .clipShape(Circle())
+                            
+                    case .failure:
+                        Image(systemName: "photo") // Imagem de fallback
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 48, height: 48)
+                            .clipShape(Circle())
+                            
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                    
             }else{
                 Image(systemName: "person.crop.circle")
+                    .frame(width: 48, height: 48)
+                    .clipShape(Circle())
             }
            
             Text(name)
                 .bold()
             Spacer()
-            Text("••• " + role)
-                
+            Text("•••")//Text("••• " + role)
+            Spacer()
+            Text(role)
         }
         .font(.title3)
         .foregroundColor(themeVM.currentTheme.text)
@@ -212,7 +253,7 @@ struct MovieDetailsView: View {
 struct MovieDetails_Previews: PreviewProvider {
     static var previews: some View {
         MovieDetailsView(Cinema.Movie(id: 4 , voteAverage: 4.8, title: "A forja", originalTitle: "A Forja: O poder da transformaçao", popularity: 8.7, posterPath: "forja", backdropPath: "forja_background",
-            overview: "A Forja - O Poder da Transformação é um filme dirigido por Alex Kendrick que narra a história de Isaiah Wright, um jovem de 19 anos que, após terminar o ensino médio, se sente perdido e sem rumo na vida. Criado por uma mãe solteira, ele passa seus dias jogando videogame e jogando basquete até que, pressionado por sua mãe, ele busca um emprego em uma grande empresa. Ao longo do filme, Isaiah é encorajado por sua mãe e um mentor devoto, explorando temas de fé, superação e propósito de vida.", releaseDate: Date(), genres: [Cinema.Movie.Genre(id: 1, name: "Gospel"), Cinema.Movie.Genre(id: 1, name: "Comedia")], cast: [Cinema.Movie.Actor(id: 1, actorName: "Claudio casto", roleName: "Juan")],duration: "2hr 1m", photos:["forja_background", "forja_background", "forja_background"]
+            overview: "A Forja - O Poder da Transformação é um filme dirigido por Alex Kendrick que narra a história de Isaiah Wright, um jovem de 19 anos que, após terminar o ensino médio, se sente perdido e sem rumo na vida. Criado por uma mãe solteira, ele passa seus dias jogando videogame e jogando basquete até que, pressionado por sua mãe, ele busca um emprego em uma grande empresa. Ao longo do filme, Isaiah é encorajado por sua mãe e um mentor devoto, explorando temas de fé, superação e propósito de vida.", releaseDate: Date(), genres: [Cinema.Movie.Genre(id: 1, name: "Gospel"), Cinema.Movie.Genre(id: 1, name: "Comedia")], cast: [Cinema.Movie.Actor(id: 1, name: "Claudio casto", character: "Juan")], photos:["forja_background", "forja_background", "forja_background"]
                                      ))
     }
 }

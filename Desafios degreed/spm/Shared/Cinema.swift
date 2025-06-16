@@ -4,6 +4,8 @@
 //
 //  Created by Joel Tavares on 06/06/25.
 //
+// url das imagens: https://image.tmdb.org/t/p/w500/url.jpg
+
 
 import Foundation
 import SwiftDate
@@ -11,7 +13,7 @@ struct Cinema: Identifiable{
     let id: Int
     var movies : Array<Movie>
     
-    struct Movie: Identifiable {
+    struct Movie: Identifiable, Codable {
         static func releaseDateOrder (lhs: Cinema.Movie, rhs: Cinema.Movie) -> Bool{
             lhs.releaseDate > rhs.releaseDate
         }
@@ -19,6 +21,7 @@ struct Cinema: Identifiable{
         static func titleOrder (lhs: Cinema.Movie, rhs: Cinema.Movie) -> Bool{
             lhs.title < rhs.title
         }
+        
 
         let id: Int
         var voteAverage: Double
@@ -31,17 +34,16 @@ struct Cinema: Identifiable{
         var releaseDate: Date
         var genres: Array<Genre>
         var cast: Array<Actor>
-        var duration: String
         var photos: Array<String>
         
-        struct Actor: Identifiable{
+        struct Actor: Identifiable, Codable{
             let id: Int
-            var actorName: String
-            var roleName: String
-            var profileImage: String? = nil
+            var name: String
+            var character: String
+            var profile_path: String? = nil
         }
         
-        struct Genre: Identifiable, Equatable{
+        struct Genre: Identifiable, Equatable, Codable{
             let id: Int
             var name: String
             

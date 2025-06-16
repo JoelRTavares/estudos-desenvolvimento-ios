@@ -8,11 +8,26 @@
 import SwiftUI
 import SwiftDate
 class CompanySystemViewModel: ObservableObject{
-    @Published private var cinema = createCinema()
+    @Published private var cinema: Cinema
+        
+    @Published var movies: [Cinema.Movie] = []{
+        didSet{
+            cinema = Cinema(id: 1, movies: movies)
+        }
+    }
+    @Published var isLoading = false
+    @Published var error: MovieError?
     
-
-    public var movies: Array<Cinema.Movie> {
-        return cinema.movies
+    private let movieService: MovieServiceProtocol
+    
+    init(movieService: MovieServiceProtocol = MovieService(apiKey: "API-KEY")) {
+        self.movieService = movieService
+        self.cinema = Cinema(id: 1, movies: [])
+        self.movies = []
+        
+        Task { @MainActor in
+            await loadData()//A Warning
+        }
     }
     
     // MARK - Intents
@@ -33,28 +48,89 @@ class CompanySystemViewModel: ObservableObject{
         cinema.movies.sorted(by: Cinema.Movie.titleOrder)
     }
     //Ordem alfabetica
+    private var allGenres: [GenreDTO] = []
     
-    private static func createCinema() -> Cinema{
-        var genre1 : Array<Cinema.Movie.Genre> = []
-        genre1.append(Cinema.Movie.Genre(id: 1, name:  "drama"))
+    private func loadGenres() async throws -> [GenreDTO]{
+        if allGenres.isEmpty{
+            allGenres = try await movieService.fetchGenres()
+        }
         
-        var genre2 : Array<Cinema.Movie.Genre> = []
-        genre2.append(Cinema.Movie.Genre(id: 1, name:  "Gospel"))
-        genre2.append(Cinema.Movie.Genre(id: 1, name:  "Comedia"))
-        
-        var actors: Array<Cinema.Movie.Actor> = []
-        actors.append(Cinema.Movie.Actor(id: 1, actorName: "Fulano de Tal", roleName: "Zé Jacaré"))
-        actors.append(Cinema.Movie.Actor(id: 2, actorName: "Ciclno de Tal", roleName: "Jose Pereira"))
-        actors.append(Cinema.Movie.Actor(id: 3, actorName: "Deutrano de Tal", roleName: "Zé Carlos"))
-        actors.append(Cinema.Movie.Actor(id: 4, actorName: "Zeca de Tal", roleName: "Carlos Araujo"))
-        var movies: Array<Cinema.Movie> = []
-        movies.append(Cinema.Movie(id: 2, voteAverage: 4.1, title: "Exterminado", originalTitle: "The death", popularity: 3.7, posterPath: "forja", backdropPath: "outrolink.jpeg", overview: "Algum texto", releaseDate: Date() + 3.years, genres: genre1, cast: actors, duration:"2hr 10m", photos:["forja_background", "forja_background", "forja_background"]))
-        
-        movies.append(Cinema.Movie(id: 3, voteAverage: 2.1, title: "Anima", originalTitle: "Anima", popularity: 4.5, posterPath: "forja", backdropPath: "forja", overview: "Algum texto", releaseDate: Date() - 5.years, genres: genre1, cast: actors,duration:"2hr 5m", photos:["forja_background", "forja_background", "forja_background"]))
-        
-        movies.append(Cinema.Movie(id: 4 , voteAverage: 4.8, title: "A forja", originalTitle: "The Forge", popularity: 8.7, posterPath: "forja", backdropPath: "forja_background", overview: "A Forja - O Poder da Transformação é um filme dirigido por Alex Kendrick que narra a história de Isaiah Wright, um jovem de 19 anos que, após terminar o ensino médio, se sente perdido e sem rumo na vida. Criado por uma mãe solteira, ele passa seus dias jogando videogame e jogando basquete até que, pressionado por sua mãe, ele busca um emprego em uma grande empresa. Ao longo do filme, Isaiah é encorajado por sua mãe e um mentor devoto, explorando temas de fé, superação e propósito de vida.", releaseDate: Date(), genres: genre2, cast: actors, duration:"1hr 40m", photos:["forja_background", "forja_background", "forja_background"]))
-        
-        movies.append(Cinema.Movie(id: 5, voteAverage: 2.1, title: "Outro Filme", originalTitle: "Another Movie", popularity: 4.5, posterPath: "forja", backdropPath: "forja", overview: "Ipsum Lorem", releaseDate: Date() - 2.years, genres: genre1, cast: actors,duration:"1hr 35m", photos:["forja_background", "forja_background", "forja_background"]))
-        return Cinema(id: 3, movies: movies)
+        return allGenres
     }
+    @MainActor
+    func loadData() async {
+        isLoading = true
+        do {
+            // 1. Busca filmes, gêneros e elenco em paralelo
+            async let moviesTask = movieService.fetchUpcomingMovies()
+            async let genresTask = loadGenres()
+            
+            let (movieDTOs, genres) = try await (moviesTask, genresTask)
+            
+            // 2. Para cada filme, busca o elenco
+            var fullMovies: [Cinema.Movie] = []
+            await withTaskGroup(of: Cinema.Movie?.self) { group in
+                for movieDTO in movieDTOs {
+                    group.addTask{
+                        do{
+                            let cast = try await self.movieService.fetchCast(movieId: movieDTO.id)
+                            
+                            // 3. Mapeia genre_ids para objetos Genre
+                            let movieGenres = genres.filter { genre in
+                                movieDTO.genre_ids.contains(genre.id)
+                            }.map { genre in
+                                Cinema.Movie.Genre(id: genre.id, name: genre.name)
+                            }
+                            
+                            // 4. Converte para o Model final
+                            let movie = Cinema.Movie(
+                                id: movieDTO.id,
+                                voteAverage: movieDTO.vote_average,
+                                title: movieDTO.title,
+                                originalTitle: movieDTO.original_title,
+                                popularity: movieDTO.popularity,
+                                posterPath: "https://image.tmdb.org/t/p/w500\(movieDTO.poster_path ?? "")",
+                                backdropPath: "https://image.tmdb.org/t/p/w500\(movieDTO.backdrop_path ?? "")",
+                                overview: movieDTO.overview,
+                                releaseDate: DateFormatter.yyyyMMdd.date(from: movieDTO.release_date) ?? Date(),
+                                genres: movieGenres,
+                                cast: cast.map { actor in
+                                    Cinema.Movie.Actor(
+                                        id: actor.id,
+                                        name: actor.name,
+                                        character: actor.character,
+                                        profile_path: "https://image.tmdb.org/t/p/w500\(actor.profile_path ?? "")"
+                                    )
+                                },
+                                photos: [] // Inicializado vazio ou pode ser preenchido posteriormente
+                            )
+                            return movie
+                        }catch{
+                            return nil
+                        }
+                    }
+                    
+                    }
+                for await movie in group {
+                    if let movie = movie {
+                        fullMovies.append(movie)
+                    }
+                }
+                
+            }
+            self.movies = fullMovies
+        } catch {
+            self.error = error as? MovieError ?? .unknown
+        }
+        isLoading = false
+    }
+}
+
+
+extension DateFormatter {
+    static let yyyyMMdd: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
 }

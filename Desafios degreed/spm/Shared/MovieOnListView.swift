@@ -17,9 +17,23 @@ struct MovieOnListView: View {
     
     var body: some View {
         VStack(alignment: .leading){
-            Image("\(movie.posterPath)")
-                .resizable()
-                .aspectRatio(3/5, contentMode: .fit)
+            AsyncImage(url: URL(string: movie.posterPath))
+            { phase in
+                switch phase {
+                case .empty:
+                    ProgressView() 
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(3/5, contentMode: .fit)
+                case .failure:
+                    Image(systemName: "photo")
+                        .resizable()
+                        .aspectRatio(3/5, contentMode: .fit)
+                @unknown default:
+                    EmptyView()
+                }
+            }
             
             Text("\(movie.title)")
                 .bold()
@@ -34,6 +48,6 @@ struct MovieOnListView: View {
 
 struct MovieOnListView_Previews: PreviewProvider {
     static var previews: some View {
-        MovieOnListView(Cinema.Movie(id: 4 , voteAverage: 4.8, title: "A forja", originalTitle: "The Forge", popularity: 8.7, posterPath: "forja", backdropPath: "outrolink.jpeg", overview: "Algum texto", releaseDate: Date(), genres: [Cinema.Movie.Genre(id: 1, name: "Gospel")],cast: [Cinema.Movie.Actor(id: 1, actorName: "Clodo casto", roleName: "Juan")], duration: "1hr 49m", photos:["forja_background", "forja_background", "forja_background"]))
+        MovieOnListView(Cinema.Movie(id: 4 , voteAverage: 4.8, title: "A forja", originalTitle: "The Forge", popularity: 8.7, posterPath: "forja", backdropPath: "outrolink.jpeg", overview: "Algum texto", releaseDate: Date(), genres: [Cinema.Movie.Genre(id: 1, name: "Gospel")],cast: [Cinema.Movie.Actor(id: 1, name: "Clodo casto", character: "Juan")],  photos:["forja_background", "forja_background", "forja_background"]))
     }
 }

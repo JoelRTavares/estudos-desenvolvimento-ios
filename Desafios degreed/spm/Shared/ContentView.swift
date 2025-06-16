@@ -14,16 +14,22 @@ struct ContentView: View {
     @State private var moviePresent: Cinema.Movie? = nil
     var body: some View {
         ScrollView{
+            if viewModel.isLoading{
+                ProgressView()
+            }
+            else{
             header
             dateButtons
             movies
-            
             Button(action: {
                 themeVM.toggleTheme()
             }) {
                 Image(systemName: themeVM.themeType == .light ? "moon.fill" : "sun.max.fill")
                     .foregroundColor(themeVM.currentTheme.accent)
+                    
+                }
             }
+            
         }
         .padding(4)
         .background(themeVM.currentTheme.background)
