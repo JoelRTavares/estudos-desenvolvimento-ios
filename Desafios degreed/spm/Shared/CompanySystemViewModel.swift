@@ -20,8 +20,11 @@ class CompanySystemViewModel: ObservableObject{
     
     private let movieService: MovieServiceProtocol
     
-    init(movieService: MovieServiceProtocol = MovieService(apiKey: "API-KEY")) {
-        self.movieService = movieService
+    init() {
+        guard let apiKey = Bundle.main.infoDictionary?["MOVIE_SERVICE_API_KEY"] as? String, !apiKey.isEmpty else {
+            fatalError("API key não encontrada")
+        }
+        self.movieService = MovieService(apiKey: apiKey)
         self.cinema = Cinema(id: 1, movies: [])
         self.movies = []
         
