@@ -52,7 +52,7 @@ final class MovieService: MovieServiceProtocol {
         let response = try JSONDecoder().decode(PhotosResponseDTO.self, from: data)
         return response.backdrops
     }
-    // Método privado para evitar repetição de código
+
     private func performRequest(endpoint: String) async throws -> Data {
         guard let url = URL(string: endpoint) else { throw MovieError.InvalidUrl }
         let (data, response) = try await URLSession.shared.data(from: url)

@@ -4,7 +4,6 @@
 //
 //  Created by Joel Tavares on 06/06/25.
 //
-// url das imagens: https://image.tmdb.org/t/p/w500/url.jpg
 
 
 import Foundation
@@ -51,7 +50,5 @@ struct Cinema: Identifiable{
                 return lhs.name == rhs.name
             }
         }
-        
     }
-
 }

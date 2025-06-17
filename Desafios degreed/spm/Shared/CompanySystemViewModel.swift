@@ -93,8 +93,8 @@ class CompanySystemViewModel: ObservableObject{
                                 title: movieDTO.title,
                                 originalTitle: movieDTO.original_title,
                                 popularity: movieDTO.popularity,
-                                posterPath: "https://image.tmdb.org/t/p/w500\(movieDTO.poster_path ?? "")",
-                                backdropPath: "https://image.tmdb.org/t/p/w500\(movieDTO.backdrop_path ?? "")",
+                                posterPath: "\(MovieConstants.imageUrl)\(movieDTO.poster_path ?? "")",
+                                backdropPath: "\(MovieConstants.imageUrl)\(movieDTO.backdrop_path ?? "")",
                                 overview: movieDTO.overview,
                                 releaseDate: DateFormatter.yyyyMMdd.date(from: movieDTO.release_date) ?? Date(),
                                 genres: movieGenres,
@@ -103,11 +103,11 @@ class CompanySystemViewModel: ObservableObject{
                                         id: actor.id,
                                         name: actor.name,
                                         character: actor.character,
-                                        profile_path: "https://image.tmdb.org/t/p/w500\(actor.profile_path ?? "")"
+                                        profile_path: "\(MovieConstants.imageUrl)\(actor.profile_path ?? "")"
                                     )
                                 },
                                 photos: photos.map { mov in
-                                    "https://image.tmdb.org/t/p/w500\(mov.file_path ?? "")"
+                                    "\(MovieConstants.imageUrl)\(mov.file_path ?? "")"
                                 } 
                             )
                             return movie
@@ -129,6 +129,10 @@ class CompanySystemViewModel: ObservableObject{
             self.error = error as? MovieError ?? .unknown
         }
         isLoading = false
+    }
+    
+    private struct MovieConstants{
+        static let imageUrl = "https://image.tmdb.org/t/p/w500"
     }
 }
 

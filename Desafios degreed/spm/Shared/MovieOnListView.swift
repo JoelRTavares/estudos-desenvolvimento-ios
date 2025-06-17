@@ -25,11 +25,11 @@ struct MovieOnListView: View {
                 case .success(let image):
                     image
                         .resizable()
-                        .aspectRatio(3/5, contentMode: .fit)
+                        .aspectRatio(MovListConst.aspectRatio, contentMode: .fit)
                 case .failure:
-                    Image(systemName: "photo")
+                    Image(systemName: MovListConst.defaultImage)
                         .resizable()
-                        .aspectRatio(3/5, contentMode: .fit)
+                        .aspectRatio(MovListConst.aspectRatio, contentMode: .fit)
                 @unknown default:
                     EmptyView()
                 }
@@ -38,11 +38,17 @@ struct MovieOnListView: View {
             Text("\(movie.title)")
                 .bold()
                 .font(.title)
-            Text("\(movie.genres[0].name) • \(movie.releaseDate.toFormat("dd-MM-yyyy")) | \(String(format: "%.1f",movie.popularity))")
+            Text("\(movie.genres[0].name) • \(movie.releaseDate.toFormat(MovListConst.dateFormat)) | \(String(format: MovListConst.popularityFormat, movie.popularity))")
                 .font(.title3)
         }
         .foregroundColor(themeVM.currentTheme.text)
-        
+    }
+    
+    private struct MovListConst{
+        static let aspectRatio = 3.0/5
+        static let dateFormat = "dd-MM-yyyy"
+        static let popularityFormat = "%.1f"
+        static let defaultImage = "photo"
     }
 }
 

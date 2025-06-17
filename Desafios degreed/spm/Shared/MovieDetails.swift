@@ -49,11 +49,11 @@ struct MovieDetailsView: View {
                 case .success(let image):
                     image
                         .resizable()
-                        .aspectRatio(16/9, contentMode: .fit)
+                        .aspectRatio(DetailsConst.Img.aspectRatio, contentMode: .fit)
                 case .failure:
-                    Image(systemName: "photo")
+                    Image(systemName: DetailsConst.Img.defaultImgNotFound)
                         .resizable()
-                        .aspectRatio(16/9, contentMode: .fit)
+                        .aspectRatio(DetailsConst.Img.aspectRatio, contentMode: .fit)
                 @unknown default:
                     EmptyView()
                 }
@@ -63,7 +63,7 @@ struct MovieDetailsView: View {
                 .font(.title)
                 .foregroundColor(themeVM.currentTheme.text)
             HStack{
-                Text("\(String(format:"%.1f", movie.voteAverage))")
+                Text("\(String(format:DetailsConst.voteFormat, movie.voteAverage))")
                     .font(.largeTitle)
                     .foregroundColor(.red)
                 VStack(alignment: .leading){
@@ -82,7 +82,7 @@ struct MovieDetailsView: View {
         Section(header: Text("Synopsis")){
             let sinText = movie.overview
             
-            if sinText.count < 150 {
+            if sinText.count < DetailsConst.maxCharCount {
                 Text(sinText)
             }
             else{
@@ -92,7 +92,7 @@ struct MovieDetailsView: View {
                         showMore.toggle()
                     }
                 }else{
-                    Text(sinText.substring(from: 0, to: 150) + "...")
+                    Text(sinText.substring(from: 0, to: DetailsConst.maxCharCount) + "...")
                     Button("Show more"){
                         showMore.toggle()
                     }
@@ -101,7 +101,6 @@ struct MovieDetailsView: View {
         }
         .foregroundColor(themeVM.currentTheme.text)
         .listRowBackground(themeVM.currentTheme.background)
-        
     }
     
     var cast: some View{
@@ -118,14 +117,13 @@ struct MovieDetailsView: View {
                     }
                 }
         ){
-            let actors = movie.cast.prefix(3)
+            let actors = movie.cast.prefix(DetailsConst.prefixItems)
 
             ForEach(actors){ act in
                 MovieDetailsView.castRow(name: act.name, role: act.character, profImage: act.profile_path, themeVM)
             }
         }
         .listRowBackground(themeVM.currentTheme.background)
-        
     }
     
     var photos: some View{
@@ -141,7 +139,7 @@ struct MovieDetailsView: View {
                     }
                 }
         ){
-            let photos = movie.photos.prefix(3)
+            let photos = movie.photos.prefix(DetailsConst.prefixItems)
             HStack{
                 ForEach(photos.indices, id:\.self){ index in
                     AsyncImage(url: URL(string: photos[index]))
@@ -149,19 +147,19 @@ struct MovieDetailsView: View {
                         switch phase {
                         case .empty:
                             ProgressView()
-                                .frame(width: 48, height: 48)
+                                .frame(width: DetailsConst.Img.circleSize, height: DetailsConst.Img.circleSize)
                                 
                         case .success(let image):
                             image
                                 .resizable()
-                                .aspectRatio(16/9, contentMode: .fit)
-                                .cornerRadius(8)
+                                .aspectRatio(DetailsConst.Img.aspectRatio, contentMode: .fit)
+                                .cornerRadius(DetailsConst.Img.cornerRadius)
                                 
                         case .failure:
-                            Image(systemName: "photo")
+                            Image(systemName: DetailsConst.Img.defaultImgNotFound)
                             .resizable()
-                            .aspectRatio(16/9, contentMode: .fit)
-                            .cornerRadius(8)
+                            .aspectRatio(DetailsConst.Img.aspectRatio, contentMode: .fit)
+                            .cornerRadius(DetailsConst.Img.cornerRadius)
                                 
                         @unknown default:
                             EmptyView()
@@ -171,7 +169,6 @@ struct MovieDetailsView: View {
             }
         }
         .listRowBackground(themeVM.currentTheme.background)
-        
     }
     
     struct FullCastView: View {
@@ -180,7 +177,7 @@ struct MovieDetailsView: View {
 
         var body: some View {
             ScrollView {
-                VStack(alignment:.center, spacing: 16) {
+                VStack(alignment:.center, spacing: DetailsConst.Img.spacing) {
                     Text("Cast & Crew")
                         .font(.title)
                         .foregroundColor(themeVM.currentTheme.text)
@@ -203,7 +200,7 @@ struct MovieDetailsView: View {
 
         var body: some View {
             ScrollView {
-                VStack(alignment:.center, spacing: 16) {
+                VStack(alignment:.center, spacing: DetailsConst.Img.spacing) {
                     Text("Photos")
                         .font(.title)
                         .foregroundColor(themeVM.currentTheme.text)                    
@@ -213,19 +210,19 @@ struct MovieDetailsView: View {
                             switch phase {
                             case .empty:
                                 ProgressView()
-                                    .frame(width: 48, height: 48)
+                                    .frame(width: DetailsConst.Img.circleSize, height: DetailsConst.Img.circleSize)
                                     
                             case .success(let image):
                                 image
                                     .resizable()
-                                    .aspectRatio(16/9, contentMode: .fit)
-                                    .cornerRadius(8)
+                                    .aspectRatio(DetailsConst.Img.aspectRatio, contentMode: .fit)
+                                    .cornerRadius(DetailsConst.Img.cornerRadius)
                                     
                             case .failure:
-                                Image(systemName: "photo")
+                                Image(systemName: DetailsConst.Img.defaultImgNotExists)
                                 .resizable()
-                                .aspectRatio(16/9, contentMode: .fit)
-                                .cornerRadius(8)
+                                .aspectRatio(DetailsConst.Img.aspectRatio, contentMode: .fit)
+                                .cornerRadius(DetailsConst.Img.cornerRadius)
                                     
                             @unknown default:
                                 EmptyView()
@@ -250,20 +247,20 @@ struct MovieDetailsView: View {
                     switch phase {
                     case .empty:
                         ProgressView()
-                            .frame(width: 48, height: 48)
+                            .frame(width: DetailsConst.Img.circleSize, height: DetailsConst.Img.circleSize)
                             
                     case .success(let image):
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 48, height: 48)
+                            .frame(width: DetailsConst.Img.circleSize, height: DetailsConst.Img.circleSize)
                             .clipShape(Circle())
                             
                     case .failure:
-                        Image(systemName: "photo") // Imagem de fallback
+                        Image(systemName: DetailsConst.Img.defaultImgNotFound) // Imagem de fallback
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 48, height: 48)
+                            .frame(width: DetailsConst.Img.circleSize, height: DetailsConst.Img.circleSize)
                             .clipShape(Circle())
                             
                     @unknown default:
@@ -272,20 +269,35 @@ struct MovieDetailsView: View {
                 }
                     
             }else{
-                Image(systemName: "person.crop.circle")
-                    .frame(width: 48, height: 48)
+                Image(systemName: DetailsConst.Img.defaultImgNotExists)
+                    .frame(width: DetailsConst.Img.circleSize, height: DetailsConst.Img.circleSize)
                     .clipShape(Circle())
             }
            
             Text(name)
                 .bold()
             Spacer()
-            Text("•••")//Text("••• " + role)
+            Text("•••")
             Spacer()
             Text(role)
         }
         .font(.title3)
         .foregroundColor(themeVM.currentTheme.text)
+    }
+    
+    private struct DetailsConst{
+        static let maxCharCount = 150
+        static let prefixItems = 3
+        static let voteFormat = "%.1f"
+        
+        struct Img{
+            static let circleSize = 48.0
+            static let aspectRatio = 16.0/9
+            static let cornerRadius = 8.0
+            static let spacing = 16.0
+            static let defaultImgNotFound = "photo"
+            static let defaultImgNotExists = "person.crop.circle"
+        }
     }
 }
 
