@@ -23,7 +23,6 @@
 		6C0992E72E05C7CB00755DC4 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0992E62E05C7CB00755DC4 /* StringExtension.swift */; };
 		6C0992E92E05C87000755DC4 /* CompanySystemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0992E82E05C87000755DC4 /* CompanySystemViewModel.swift */; };
 		6C0992EB2E05C92D00755DC4 /* DateFormatterExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0992EA2E05C92D00755DC4 /* DateFormatterExtension.swift */; };
-		6CB8683C2E0ADDB600C6591B /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 6CB8683B2E0ADDB600C6591B /* Secrets.xcconfig */; };
 		6CE4B03D2E0989DE00D84711 /* MovieCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CE4B03C2E0989DE00D84711 /* MovieCollectionViewCell.swift */; };
 /* End PBXBuildFile section */
 
@@ -64,8 +63,8 @@
 		6C0992E62E05C7CB00755DC4 /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
 		6C0992E82E05C87000755DC4 /* CompanySystemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanySystemViewModel.swift; sourceTree = "<group>"; };
 		6C0992EA2E05C92D00755DC4 /* DateFormatterExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatterExtension.swift; sourceTree = "<group>"; };
-		6CB8683B2E0ADDB600C6591B /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		6CE4B03C2E0989DE00D84711 /* MovieCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieCollectionViewCell.swift; sourceTree = "<group>"; };
+		6CE4B03E2E09B62900D84711 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,7 +128,7 @@
 				6C0992B42E05B36800755DC4 /* Assets.xcassets */,
 				6C0992B62E05B36800755DC4 /* LaunchScreen.storyboard */,
 				6C0992B92E05B36800755DC4 /* Info.plist */,
-				6CB8683B2E0ADDB600C6591B /* Secrets.xcconfig */,
+				6CE4B03E2E09B62900D84711 /* Secrets.xcconfig */,
 			);
 			path = withUIKit;
 			sourceTree = "<group>";
@@ -321,7 +320,6 @@
 			files = (
 				6C0992B82E05B36800755DC4 /* LaunchScreen.storyboard in Resources */,
 				6C0992B52E05B36800755DC4 /* Assets.xcassets in Resources */,
-				6CB8683C2E0ADDB600C6591B /* Secrets.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -406,6 +404,7 @@
 /* Begin XCBuildConfiguration section */
 		6C0992D02E05B36900755DC4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6CE4B03E2E09B62900D84711 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -467,6 +466,7 @@
 		};
 		6C0992D12E05B36900755DC4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6CE4B03E2E09B62900D84711 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
