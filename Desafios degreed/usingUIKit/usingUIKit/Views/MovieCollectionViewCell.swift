@@ -62,7 +62,7 @@ class MovieCollectionViewCell: UICollectionViewCell {
         let popularity = String(format: "%.1f", movie.popularity)
 
         detailsLabel.text = "\(genre) • \(dateStr) | \(popularity)"
-
+        
         if let url = URL(string: movie.posterPath) {
             DispatchQueue.global().async {
                 if let data = try? Data(contentsOf: url), let img = UIImage(data: data) {

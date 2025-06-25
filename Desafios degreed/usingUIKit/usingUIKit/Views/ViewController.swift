@@ -10,7 +10,57 @@ import UIKit
 class ViewController: UIViewController {
     var movies = [Cinema.Movie]()
     private var viewModel = CompanySystemViewModel()
+    private var currentMovies = true
+    
+    private var currentMoviesButton: UIButton!
+    private var upcomingMoviesButton: UIButton!
+    
+    private lazy var headerTextView: UIStackView = {
+        let titleTextView = UILabel()
+        titleTextView.textAlignment = .left
+        titleTextView.font = UIFont.boldSystemFont(ofSize: 22)
+        titleTextView.text = "CI&T Movies"
+        titleTextView.textColor = .black
+        
+        let searchImageView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
+        searchImageView.contentMode = .scaleAspectFit
+        searchImageView.tintColor = .black
+        
+        let stackView = UIStackView(arrangedSubviews: [titleTextView, searchImageView])
+        stackView.axis = .horizontal
+        stackView.distribution = .fillProportionally
+        
+        return stackView
+    }()
+    
+    private lazy var headerButtonsView: UIStackView = {
+        currentMoviesButton = UIButton(type: .system)
+        currentMoviesButton.setTitle("Current Movies", for: .normal)
+        currentMoviesButton.setTitleColor(.white, for: .normal)
+        currentMoviesButton.backgroundColor = currentMovies ? .red : .darkGray
+        currentMoviesButton.addTarget(self, action: #selector(changeToCurrentMovies), for: .touchUpInside)
+        
+        upcomingMoviesButton = UIButton(type: .system)
+        upcomingMoviesButton.setTitle("Upcoming Movies", for: .normal)
+        upcomingMoviesButton.setTitleColor(.white, for: .normal)
+        upcomingMoviesButton.backgroundColor = !currentMovies ? .red : .darkGray
+        upcomingMoviesButton.addTarget(self, action: #selector(changeToIncommingMovies), for: .touchUpInside)
 
+        
+        let stackView = UIStackView(arrangedSubviews: [
+            currentMoviesButton,
+            upcomingMoviesButton
+        ])
+        stackView.backgroundColor = .darkGray
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        
+        stackView.layer.cornerRadius = 10
+        stackView.clipsToBounds = true
+        
+        return stackView
+    }()
+    
     private lazy var movieOnListColView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let spacing: CGFloat = 10
@@ -19,27 +69,27 @@ class ViewController: UIViewController {
         layout.minimumInteritemSpacing = spacing
         layout.minimumLineSpacing = spacing
         layout.sectionInset = UIEdgeInsets(top: spacing, left: spacing, bottom: spacing, right: spacing)
-
+        
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.backgroundColor = .lightGray
-
+        
         collectionView.register(MovieCollectionViewCell.self, forCellWithReuseIdentifier: MovieCollectionViewCell.identifier)
         
         return collectionView
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         
         movieOnListColView.register(
-                MovieCollectionViewCell.self,
-                forCellWithReuseIdentifier: MovieCollectionViewCell.identifier
-            )
-            
+            MovieCollectionViewCell.self,
+            forCellWithReuseIdentifier: MovieCollectionViewCell.identifier
+        )
+        
         viewModel.delegate = self
         setupView()
         viewModel.loadData()
@@ -49,17 +99,65 @@ class ViewController: UIViewController {
         setConstrains()
     }
     private func setHierarchy(){
+        view.addSubview(headerTextView)
+        view.addSubview(headerButtonsView)
         view.addSubview(movieOnListColView)
     }
     private func setConstrains(){
+        headerTextView.translatesAutoresizingMaskIntoConstraints = false
         movieOnListColView.translatesAutoresizingMaskIntoConstraints = false
-        
+        headerButtonsView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            movieOnListColView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            headerTextView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            headerTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            headerTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            headerTextView.heightAnchor.constraint(equalToConstant: 40),
+            
+            headerButtonsView.topAnchor.constraint(equalTo: headerTextView.safeAreaLayoutGuide.bottomAnchor, constant: 10),
+            headerButtonsView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            headerButtonsView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            headerButtonsView.heightAnchor.constraint(equalToConstant: 30),
+            
+            movieOnListColView.topAnchor.constraint(equalTo: headerButtonsView.bottomAnchor, constant: 10),
             movieOnListColView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             movieOnListColView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             movieOnListColView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+    }
+    
+    @objc func changeToCurrentMovies(){
+        currentMovies = true
+        self.movies = viewModel.searchByReleaseDateComparingNow(beforeNow: true)
+        updateButtonAppearance()
+        movieOnListColView.reloadData()
+        
+        if !movies.isEmpty {
+            movieOnListColView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+        }
+    }
+    @objc func changeToIncommingMovies(){
+        currentMovies = false
+        self.movies = viewModel.searchByReleaseDateComparingNow(beforeNow: false)
+        updateButtonAppearance()
+        movieOnListColView.reloadData()
+        
+        if !movies.isEmpty {
+            movieOnListColView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+        }
+    }
+    private func updateButtonAppearance() {
+        currentMoviesButton.backgroundColor = currentMovies ? .red : .darkGray
+        upcomingMoviesButton.backgroundColor = !currentMovies ? .red : .darkGray
+        
+        UIView.animate(withDuration: 0.3) {
+            self.currentMoviesButton.transform = self.currentMovies ? CGAffineTransform(scaleX: 1.05, y: 1.05) : .identity
+            self.upcomingMoviesButton.transform = !self.currentMovies ? CGAffineTransform(scaleX: 1.05, y: 1.05) : .identity
+        } completion: { _ in
+            UIView.animate(withDuration: 0.2) {
+                self.currentMoviesButton.transform = .identity
+                self.upcomingMoviesButton.transform = .identity
+            }
+        }
     }
 }
 
@@ -98,7 +196,7 @@ extension ViewController: CompanySystemViewModelDelegate {
     }
     
     func didUpdateMovies(_ movies: [Cinema.Movie]) {
-        self.movies = viewModel.orderByReleaseDate()
+        self.movies = viewModel.searchByReleaseDateComparingNow(beforeNow: true)
         movieOnListColView.reloadData()
     }
     
