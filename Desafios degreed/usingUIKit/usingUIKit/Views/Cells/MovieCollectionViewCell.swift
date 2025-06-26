@@ -17,7 +17,7 @@ class MovieCollectionViewCell: UICollectionViewCell {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.backgroundColor = .systemBackground
+        contentView.backgroundColor = .background
         contentView.layer.cornerRadius = 10
         contentView.layer.masksToBounds = true
 
@@ -25,15 +25,13 @@ class MovieCollectionViewCell: UICollectionViewCell {
         imageView.clipsToBounds = true
 
         titleLabel.font = UIFont.boldSystemFont(ofSize: 16)
-        titleLabel.numberOfLines = 2
 
         detailsLabel.font = UIFont.systemFont(ofSize: 14)
         detailsLabel.textColor = .gray
-        detailsLabel.numberOfLines = 2
 
         let stack = UIStackView(arrangedSubviews: [imageView, titleLabel, detailsLabel])
         stack.axis = .vertical
-        stack.spacing = 4
+        
         stack.alignment = .leading
         stack.translatesAutoresizingMaskIntoConstraints = false
 
@@ -62,7 +60,7 @@ class MovieCollectionViewCell: UICollectionViewCell {
         let popularity = String(format: "%.1f", movie.popularity)
 
         detailsLabel.text = "\(genre) • \(dateStr) | \(popularity)"
-        
+        detailsLabel.font = UIFont.systemFont(ofSize: 12)
         if let url = URL(string: movie.posterPath) {
             DispatchQueue.global().async {
                 if let data = try? Data(contentsOf: url), let img = UIImage(data: data) {

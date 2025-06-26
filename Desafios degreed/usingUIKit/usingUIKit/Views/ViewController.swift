@@ -18,14 +18,12 @@ class ViewController: UIViewController {
     private lazy var headerTextView: UIStackView = {
         let titleTextView = UILabel()
         titleTextView.textAlignment = .left
-        titleTextView.font = UIFont.boldSystemFont(ofSize: 22)
+        titleTextView.font = UIFont.boldSystemFont(ofSize: 26)
         titleTextView.text = "CI&T Movies"
-        titleTextView.textColor = .black
         
         let searchImageView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
         searchImageView.contentMode = .scaleAspectFit
-        searchImageView.tintColor = .black
-        
+        searchImageView.tintColor = .reverseBackground
         let stackView = UIStackView(arrangedSubviews: [titleTextView, searchImageView])
         stackView.axis = .horizontal
         stackView.distribution = .fillProportionally
@@ -71,10 +69,10 @@ class ViewController: UIViewController {
         layout.sectionInset = UIEdgeInsets(top: spacing, left: spacing, bottom: spacing, right: spacing)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .systemBackground
+        collectionView.backgroundColor = .background
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.backgroundColor = .lightGray
+        collectionView.backgroundColor = .background
         
         collectionView.register(MovieCollectionViewCell.self, forCellWithReuseIdentifier: MovieCollectionViewCell.identifier)
         
@@ -83,8 +81,8 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        
+        view.backgroundColor = .background
+
         movieOnListColView.register(
             MovieCollectionViewCell.self,
             forCellWithReuseIdentifier: MovieCollectionViewCell.identifier
