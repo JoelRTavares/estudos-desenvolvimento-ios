@@ -8,26 +8,10 @@
 import UIKit
 
 class SynopsisCell: UITableViewCell {
-    private let synopsisLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 16)
-        label.numberOfLines = 0
-        return label
-    }()
+    private lazy var synopsisLabel = UILabelFactory.createLabel(fontSize: 16)
+    lazy var showMoreButton = UIButtonFactory.createButton(title: "Show more")
+    private lazy var stackView = UIStackViewFactory.createVerticalStackView()
     
-    let showMoreButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Show more", for: .normal)
-        return button
-    }()
-    
-    private let stackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.spacing = 8
-        stack.alignment = .leading
-        return stack
-    }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

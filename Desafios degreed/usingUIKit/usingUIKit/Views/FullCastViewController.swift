@@ -10,15 +10,9 @@ import UIKit
 class FullCastViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     private let cast: [Cinema.Movie.Actor]
     
-    private lazy var tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(CastCell.self, forCellReuseIdentifier: DetailsConst.Ids.castCellId)
-        tableView.backgroundColor = .background
-        tableView.separatorStyle = .none
-        return tableView
-    }()
+    
+    private lazy var tableView = UItableViewFactory.createTableView(cell: CastCell.self, cellIdentifier: DetailsConst.Ids.castCellId)
+    
     
     init(cast: [Cinema.Movie.Actor]) {
         self.cast = cast
@@ -30,6 +24,9 @@ class FullCastViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     override func viewDidLoad() {
+        tableView.dataSource = self
+        tableView.delegate = self
+        
         super.viewDidLoad()
         title = "Cast & Crew"
         view.backgroundColor = .background

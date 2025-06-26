@@ -8,70 +8,16 @@
 import UIKit
 
 class MovieInfoCell: UITableViewCell {
-    // Backdrop image
-    private let backdropImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.clipsToBounds = true
-        return imageView
-    }()
+
+    private lazy var backdropImageView = UIImageViewFactory.createAspectFillImageView()
+    private lazy var titleLabel = UILabelFactory.createTitleLabel()
+    private lazy var ratingLabel = UILabelFactory.createRatingLabel()
+    private lazy var durationLabel = UILabelFactory.createLabel(text: "2Hr 10m | R", fontSize: 18)
+    private lazy var genresLabel = UILabelFactory.createLabel(fontSize: 18)
     
-    // Movie title
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 24, weight: .bold)
-        label.numberOfLines = 0
-        return label
-    }()
-    
-    // Rating
-    private let ratingLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 34, weight: .bold)
-        label.textColor = .systemRed
-        return label
-    }()
-    
-    // Duration and rating
-    private let durationLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 18)
-        label.text = "2Hr 10m | R"
-        return label
-    }()
-    
-    // Genres
-    private let genresLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 18)
-        label.numberOfLines = 0
-        return label
-    }()
-    
-    private let infoStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.spacing = 8
-        stack.alignment = .leading
-        stack.distribution = .fillProportionally
-        return stack
-    }()
-    
-    private let ratingInfoStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 12
-        stack.alignment = .center
-        return stack
-    }()
-    
-    private let detailsStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.spacing = 4
-        stack.alignment = .leading
-        return stack
-    }()
+    private lazy var infoStackView = UIStackViewFactory.createVerticalStackView()
+    private lazy var ratingInfoStackView = UIStackViewFactory.createHorizontalStackView()
+    private lazy var detailsStackView = UIStackViewFactory.createVerticalStackView()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -87,15 +33,12 @@ class MovieInfoCell: UITableViewCell {
         backgroundColor = .clear
         contentView.backgroundColor = .clear
         
-        // Add backdrop image
         contentView.addSubview(backdropImageView)
         backdropImageView.translatesAutoresizingMaskIntoConstraints = false
         
-        // Add the info stack view with title and rating
         contentView.addSubview(infoStackView)
         infoStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        // Setup nested stack views for rating info
         detailsStackView.addArrangedSubview(durationLabel)
         detailsStackView.addArrangedSubview(genresLabel)
         
@@ -123,7 +66,6 @@ class MovieInfoCell: UITableViewCell {
         ratingLabel.text = String(format: DetailsConst.voteFormat, movie.voteAverage)
         genresLabel.text = movie.genres.map { $0.name }.joined(separator: ", ")
         
-        // Load the backdrop image
         if let url = URL(string: movie.backdropPath) {
             loadImage(from: url, into: backdropImageView)
         } else {

@@ -8,19 +8,8 @@
 import UIKit
 
 class PhotosCell: UITableViewCell {
-    private let scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.showsHorizontalScrollIndicator = false
-        return scrollView
-    }()
-    
-    private let stackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 12
-        stack.alignment = .center
-        return stack
-    }()
+    private lazy var scrollView = UIScrollViewFactory.createHorizontalScrollView()
+    private lazy var stackView = UIStackViewFactory.createHorizontalStackView()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -61,12 +50,8 @@ class PhotosCell: UITableViewCell {
         stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
         for photo in photos {
-            let photoView = UIImageView()
-            photoView.contentMode = .scaleAspectFit
-            photoView.clipsToBounds = true
-            photoView.layer.cornerRadius = DetailsConst.Img.cornerRadius
+            let photoView = UIImageViewFactory.createAspectFillImageView(cornerRadius: DetailsConst.Img.cornerRadius)
             
-            // Set a fixed width and height for the image view
             photoView.translatesAutoresizingMaskIntoConstraints = false
             let heightConstraint = photoView.heightAnchor.constraint(equalToConstant: 120)
             let widthConstraint = photoView.widthAnchor.constraint(equalTo: photoView.heightAnchor, multiplier: DetailsConst.Img.aspectRatio)

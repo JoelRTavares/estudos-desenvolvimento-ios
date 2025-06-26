@@ -8,40 +8,13 @@
 import UIKit
 
 class CastCell: UITableViewCell {
-    private let profileImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = DetailsConst.Img.circleSize / 2
-        imageView.clipsToBounds = true
-        return imageView
-    }()
     
-    private let nameLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 18, weight: .bold)
-        return label
-    }()
+    private lazy var profileImageView = UIImageViewFactory.createCircleImageView(size: DetailsConst.Img.circleSize)
+    private lazy var nameLabel = UILabelFactory.createLabel(fontSize: 18, weight: .bold)
+    private lazy var separatorLabel = UILabelFactory.createLabel(text: "•••", alignment: .center)
+    private lazy var roleLabel = UILabelFactory.createLabel(fontSize: 18)
     
-    private let separatorLabel: UILabel = {
-        let label = UILabel()
-        label.text = "•••"
-        label.textAlignment = .center
-        return label
-    }()
-    
-    private let roleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 18)
-        return label
-    }()
-    
-    private let stackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 12
-        stack.alignment = .center
-        return stack
-    }()
+    private lazy var stackView = UIStackViewFactory.createHorizontalStackView()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -59,6 +32,7 @@ class CastCell: UITableViewCell {
         contentView.addSubview(stackView)
         stackView.addArrangedSubview(profileImageView)
         stackView.addArrangedSubview(nameLabel)
+        //nameLabel.setContentHuggingPriority(.required, for: .horizontal)
         
         // Add spacer
         let spacerView = UIView()
@@ -73,7 +47,7 @@ class CastCell: UITableViewCell {
         stackView.addArrangedSubview(spacerView2)
         
         stackView.addArrangedSubview(roleLabel)
-        
+        //roleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         profileImageView.translatesAutoresizingMaskIntoConstraints = false
         

@@ -66,13 +66,7 @@ class FullPhotosViewController: UIViewController, UICollectionViewDelegate, UICo
 
 
 class PhotoCell: UICollectionViewCell {
-    private let imageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = DetailsConst.Img.cornerRadius
-        return imageView
-    }()
+    private let imageView = UIImageViewFactory.createAspectFillImageView(cornerRadius: DetailsConst.Img.cornerRadius)
     
     override init(frame: CGRect) {
         super.init(frame: frame)

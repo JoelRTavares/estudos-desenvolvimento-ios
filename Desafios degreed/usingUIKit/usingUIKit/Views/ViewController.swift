@@ -16,14 +16,9 @@ class ViewController: UIViewController {
     private var upcomingMoviesButton: UIButton!
     
     private lazy var headerTextView: UIStackView = {
-        let titleTextView = UILabel()
-        titleTextView.textAlignment = .left
-        titleTextView.font = UIFont.boldSystemFont(ofSize: 26)
-        titleTextView.text = "CI&T Movies"
-        
-        let searchImageView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        searchImageView.contentMode = .scaleAspectFit
-        searchImageView.tintColor = .reverseBackground
+        lazy var titleTextView = UILabelFactory.createLabel(text: "CI&T Movies", fontSize: 26, alignment: .left)
+        lazy var searchImageView = UIImageViewFactory.createAspectFillSystemImageView(image: "magniyingglass", color: .reverseBackground)
+
         let stackView = UIStackView(arrangedSubviews: [titleTextView, searchImageView])
         stackView.axis = .horizontal
         stackView.distribution = .fillProportionally
