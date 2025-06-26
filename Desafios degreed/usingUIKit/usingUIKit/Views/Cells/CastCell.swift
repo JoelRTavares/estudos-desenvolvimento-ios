@@ -67,25 +67,9 @@ class CastCell: UITableViewCell {
         roleLabel.text = actor.character
         
         if let profilePath = actor.profile_path, let url = URL(string: profilePath) {
-            loadImage(from: url, into: profileImageView)
+            ImageUtils.loadImage(from: url, into: profileImageView)
         } else {
             profileImageView.image = UIImage(systemName: DetailsConst.Img.defaultImgNotExists)
         }
-    }
-    
-    private func loadImage(from url: URL, into imageView: UIImageView) {
-        let task = URLSession.shared.dataTask(with: url) { data, _, error in
-            guard let data = data, error == nil else {
-                DispatchQueue.main.async {
-                    imageView.image = UIImage(systemName: DetailsConst.Img.defaultImgNotFound)
-                }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                imageView.image = UIImage(data: data)
-            }
-        }
-        task.resume()
     }
 }

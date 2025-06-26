@@ -8,10 +8,9 @@
 import UIKit
 
 class SynopsisCell: UITableViewCell {
-    private lazy var synopsisLabel = UILabelFactory.createLabel(fontSize: 16)
+    private lazy var synopsisLabel = UILabelFactory.createLabel(fontSize: 16, numberOfLines: 0)
     lazy var showMoreButton = UIButtonFactory.createButton(title: "Show more")
     private lazy var stackView = UIStackViewFactory.createVerticalStackView()
-    
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

@@ -10,8 +10,7 @@ import UIKit
 class FullCastViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     private let cast: [Cinema.Movie.Actor]
     
-    
-    private lazy var tableView = UItableViewFactory.createTableView(cell: CastCell.self, cellIdentifier: DetailsConst.Ids.castCellId)
+    private lazy var tableView = UITableViewFactory.createTableView(cell: CastCell.self, cellIdentifier: DetailsConst.Ids.castCellId)
     
     
     init(cast: [Cinema.Movie.Actor]) {

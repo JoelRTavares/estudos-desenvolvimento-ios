@@ -60,26 +60,10 @@ class PhotosCell: UITableViewCell {
             stackView.addArrangedSubview(photoView)
             
             if let url = URL(string: photo) {
-                loadImage(from: url, into: photoView)
+                ImageUtils.loadImage(from: url, into: photoView)
             } else {
                 photoView.image = UIImage(systemName: DetailsConst.Img.defaultImgNotFound)
             }
         }
-    }
-    
-    private func loadImage(from url: URL, into imageView: UIImageView) {
-        let task = URLSession.shared.dataTask(with: url) { data, _, error in
-            guard let data = data, error == nil else {
-                DispatchQueue.main.async {
-                    imageView.image = UIImage(systemName: DetailsConst.Img.defaultImgNotFound)
-                }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                imageView.image = UIImage(data: data)
-            }
-        }
-        task.resume()
     }
 }

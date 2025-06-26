@@ -175,17 +175,8 @@ extension MovieDetailsViewController: UITableViewDelegate, UITableViewDataSource
 
 // MARK: - Section Header View
 class SectionHeaderView: UIView {
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 20, weight: .bold)
-        return label
-    }()
-    
-    let viewAllButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("View All", for: .normal)
-        return button
-    }()
+    lazy var titleLabel = UILabelFactory.createLabel(fontSize: 20, weight: .bold)
+    lazy var viewAllButton = UIButtonFactory.createButton(title: "View All")
     
     override init(frame: CGRect) {
         super.init(frame: frame)
