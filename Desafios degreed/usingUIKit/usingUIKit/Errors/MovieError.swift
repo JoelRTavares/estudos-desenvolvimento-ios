@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum MovieError: Error{
+enum MovieError: Error, Equatable{
     case InvalidUrl
     //case NotFound
     //case ServerError

@@ -16,7 +16,6 @@ protocol CompanySystemViewModelDelegate: AnyObject {
 }
 
 class CompanySystemViewModel {
-    
     weak var delegate: CompanySystemViewModelDelegate?
     
     private(set) var cinema: Cinema

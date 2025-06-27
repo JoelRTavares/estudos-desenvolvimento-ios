@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     
     private lazy var headerTextView: UIStackView = {
         lazy var titleTextView = UILabelFactory.createLabel(text: "CI&T Movies", fontSize: 26, alignment: .left)
-        lazy var searchImageView = UIImageViewFactory.createAspectFillSystemImageView(image: "magniyingglass", color: .reverseBackground)
+        lazy var searchImageView = UIImageViewFactory.createAspectFillSystemImageView(image: "magnifyingglass", color: .reverseBackground)
 
         let stackView = UIStackView(arrangedSubviews: [titleTextView, searchImageView])
         stackView.axis = .horizontal
@@ -100,6 +100,7 @@ class ViewController: UIViewController {
         headerTextView.translatesAutoresizingMaskIntoConstraints = false
         movieOnListColView.translatesAutoresizingMaskIntoConstraints = false
         headerButtonsView.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
             headerTextView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             headerTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
