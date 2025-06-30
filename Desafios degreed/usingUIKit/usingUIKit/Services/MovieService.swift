@@ -7,12 +7,12 @@
 
 
 import Foundation
-
+import UIKit
 protocol MovieServiceProtocol {
-    func fetchUpcomingMovies() async throws -> [MovieDTO]
-    func fetchGenres() async throws -> [GenreDTO]
-    func fetchCast(movieId: Int) async throws -> [ActorDTO]
-    func fetchPhotos(movieId: Int) async throws -> [ImageDTO]
+    func fetchUpcomingMovies(completion: @escaping (Result<[MovieDTO], Error>) -> Void)
+    func fetchGenres(completion: @escaping (Result<[GenreDTO], Error>) -> Void)
+    func fetchCast(movieId: Int, completion: @escaping (Result<[ActorDTO], Error>) -> Void)
+    func fetchPhotos(movieId: Int, completion: @escaping (Result<[ImageDTO], Error>) -> Void)
 }
 
 final class MovieService: MovieServiceProtocol {
@@ -23,35 +23,82 @@ final class MovieService: MovieServiceProtocol {
         self.apiKey = apiKey
     }
     
-    // 1. Requisição para filmes (agora retorna DTO, não o Model final)
-    func fetchUpcomingMovies() async throws -> [MovieDTO] {
+    // 1. Requisição para filmes
+    func fetchUpcomingMovies(completion: @escaping (Result<[MovieDTO], Error>) -> Void) {
         let endpoint = "\(baseURL)/movie/upcoming?api_key=\(apiKey)"
-        let data = try await performRequest(endpoint: endpoint)
-        let response = try JSONDecoder().decode(MovieResponseDTO.self, from: data)
-        return response.results
+        
+        performRequestSync(endpoint: endpoint) { result in
+            switch result {
+            case .failure(let error):
+                // Chamando a closure de conclusão com o erro
+                completion(.failure(error))
+            case .success(let data):
+                do {
+                    let response = try JSONDecoder().decode(MovieResponseDTO.self, from: data)
+                    // Chamando a closure de conclusão com os filmes
+                    completion(.success(response.results))
+                } catch {
+                    // Chamando a closure de conclusão com erro de decodificação
+                    completion(.failure(error))
+                }
+            }
+        }
     }
+
     
     // 2. Requisição para gêneros
-    func fetchGenres() async throws -> [GenreDTO] {
+    func fetchGenres(completion: @escaping (Result<[GenreDTO], Error>) -> Void) {
         let endpoint = "\(baseURL)/genre/movie/list?api_key=\(apiKey)"
-        let data = try await performRequest(endpoint: endpoint)
-        let response = try JSONDecoder().decode(GenreResponseDTO.self, from: data)
-        return response.genres
+        
+        performRequestSync(endpoint: endpoint) { result in
+            switch result {
+            case .failure(let error):
+                    completion(.failure(error))
+            case .success(let data):
+                do {
+                    let response = try JSONDecoder().decode(GenreResponseDTO.self, from: data)
+                    completion(.success(response.genres))
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+        }
     }
     
     // 3. Requisição para elenco
-    func fetchCast(movieId: Int) async throws -> [ActorDTO] {
+    func fetchCast(movieId: Int, completion: @escaping (Result<[ActorDTO], Error>) -> Void){
         let endpoint = "\(baseURL)/movie/\(movieId)/credits?api_key=\(apiKey)"
-        let data = try await performRequest(endpoint: endpoint)
-        let response = try JSONDecoder().decode(CastResponseDTO.self, from: data)
-        return response.cast
+        
+        performRequestSync(endpoint: endpoint) { result in
+            switch result {
+            case .failure(let error):
+                    completion(.failure(error))
+            case .success(let data):
+                do {
+                    let response = try JSONDecoder().decode(CastResponseDTO.self, from: data)
+                    completion(.success(response.cast))
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+        }
     }
     
-    func fetchPhotos(movieId: Int) async throws -> [ImageDTO] {
+    func fetchPhotos(movieId: Int, completion: @escaping (Result<[ImageDTO], Error>) -> Void) {
         let endpoint = "\(baseURL)/movie/\(movieId)/images?api_key=\(apiKey)"
-        let data = try await performRequest(endpoint: endpoint)
-        let response = try JSONDecoder().decode(PhotosResponseDTO.self, from: data)
-        return response.backdrops
+        performRequestSync(endpoint: endpoint) { result in
+            switch result {
+            case .failure(let error):
+                    completion(.failure(error))
+            case .success(let data):
+                do {
+                    let response = try JSONDecoder().decode(PhotosResponseDTO.self, from: data)
+                    completion(.success(response.backdrops))
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+        }
     }
 
     private func performRequest(endpoint: String) async throws -> Data {
@@ -62,5 +109,27 @@ final class MovieService: MovieServiceProtocol {
             throw MovieError.InvalidResponse
         }
         return data
+    }
+    
+    private func performRequestSync(endpoint: String, completion: @escaping((Result<Data, Error>) -> Void)){
+        guard let url = URL(string: endpoint) else { return completion(.failure(MovieError.InvalidUrl) ) }
+        
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if let error = error {
+                return completion(.failure(error))
+            }
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                return completion(.failure(MovieError.InvalidResponse))
+            }
+            print("Response code: \(httpResponse.statusCode)")
+            if let data = data {
+                return completion(.success(data))
+            }
+            print("Data received, size: \(data?.count ?? 0) bytes.\n \(String(describing: data ?? nil))")
+            
+            completion(.failure(MovieError.InvalidData))
+            
+        }.resume()
     }
 }

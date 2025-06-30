@@ -59,77 +59,140 @@ class CompanySystemViewModel {
     @MainActor
     func loadData() {
         isLoading = true
+
+        // Crie uma DispatchGroup
+        let queue = DispatchQueue.global()
+        let dispatchGroup = DispatchGroup()
+
+        // Variáveis para armazenar resultados
+        var movieDTOs: [MovieDTO] = []
+        var error: MovieError?
+
+        // Primeiro, busca filmes
+        dispatchGroup.enter()
+        queue.async(group: dispatchGroup) {
+            self.movieService.fetchUpcomingMovies { result in
+                switch result {
+                case .failure(let error):
+                    print("Erro ao buscar filmes: \(error)")
+                case .success(let movies):
+                    movieDTOs = movies
+                    print("Fim do carregamento de filmes")
+                    dispatchGroup.leave()
+                }
+            }
+        }
         
-        Task {
-            do {
-                // 1. Buscar filmes e gêneros em paralelo
-                async let moviesTask = movieService.fetchUpcomingMovies()
-                async let genresTask = loadGenres()
+        // Então, buscar gêneros
+        dispatchGroup.enter()
+        queue.async(group: dispatchGroup) {
+          self.loadGenres(){ result in
+                switch result {
+                    case .failure(let error):
+                    print("Erro ao buscar genres: \(error)")
+                case .success(let genr):
+                    self.allGenres = genr
+                    print("Fim do carregamento de generos")
+                    dispatchGroup.leave()
+                }
+            }
+        }
+
+        // Aguarde até que todas as tarefas sejam concluídas
+        dispatchGroup.notify(queue: .main) {
+            if let error = error {
+                self.isLoading = false
+                self.error = error
+                return
+            }
+
+            var fullMovies: [Cinema.Movie] = []
+            let processingQueue = DispatchQueue.global()
+            let processingGroup = DispatchGroup()
+
+            // Processar cada filme
+            for movieDTO in movieDTOs {
+                processingGroup.enter()
                 
-                let (movieDTOs, genres) = try await (moviesTask, genresTask)
-                
-                // 2. Processar cada filme em paralelo
-                let fullMovies: [Cinema.Movie] = await withTaskGroup(of: Cinema.Movie?.self) { group in
-                    for movieDTO in movieDTOs {
-                        group.addTask {
-                            do {
-                                let cast = try await self.movieService.fetchCast(movieId: movieDTO.id)
-                                let photos = try await self.movieService.fetchPhotos(movieId: movieDTO.id)
-                                
-                                let movieGenres = genres
-                                    .filter { movieDTO.genre_ids.contains($0.id) }
-                                    .map { Cinema.Movie.Genre(id: $0.id, name: $0.name) }
-                                
-                                return Cinema.Movie(
-                                    id: movieDTO.id,
-                                    voteAverage: movieDTO.vote_average,
-                                    title: movieDTO.title,
-                                    originalTitle: movieDTO.original_title,
-                                    popularity: movieDTO.popularity,
-                                    posterPath: "\(MovieConstants.imageUrl)\(movieDTO.poster_path ?? "")",
-                                    backdropPath: "\(MovieConstants.imageUrl)\(movieDTO.backdrop_path ?? "")",
-                                    overview: movieDTO.overview,
-                                    releaseDate: DateFormatter.yyyyMMdd.date(from: movieDTO.release_date) ?? Date(),
-                                    genres: movieGenres,
-                                    cast: cast.map {
-                                        Cinema.Movie.Actor(
-                                            id: $0.id,
-                                            name: $0.name,
-                                            character: $0.character,
-                                            profile_path: "\(MovieConstants.imageUrl)\($0.profile_path ?? "")"
-                                        )
-                                    },
-                                    photos: photos.map {
-                                        "\(MovieConstants.imageUrl)\($0.file_path ?? "")"
-                                    }
-                                )
-                            } catch {
-                                return nil
+                processingQueue.async(group: processingGroup) {
+                    let innerQueue = DispatchQueue.global()
+                    let innerQueueGroup = DispatchGroup()
+                    
+                    var cast: [Cinema.Movie.Actor] = []
+                    var photos: [String] = []
+                    
+                    innerQueueGroup.enter()
+                    innerQueue.async(group: innerQueueGroup){
+                        self.movieService.fetchCast(movieId: movieDTO.id) { result in
+                            switch result {
+                            case .success(let cas):
+                                cast = cas.map {
+                                    Cinema.Movie.Actor(
+                                        id: $0.id,
+                                        name: $0.name,
+                                        character: $0.character,
+                                        profile_path: "\(MovieConstants.imageUrl)\($0.profile_path ?? "")"
+                                    )
+                                }
+                                innerQueueGroup.leave()
+                            case .failure(let error):
+                                print("Erro ao carregar elenco: \(error)")
+                            }
+                        }
+                    }
+                    // Fetch cast e photos para cada filme em paralelo
+                    
+                    innerQueueGroup.enter()
+                    innerQueue.async(group: innerQueueGroup) {
+                        self.movieService.fetchPhotos(movieId: movieDTO.id) { result in
+                            switch result {
+                            case .success(let photosDTO):
+                                photos = photosDTO.map {"\(MovieConstants.imageUrl)\($0.file_path ?? "")"}
+                                innerQueueGroup.leave()
+                            case .failure(let error):
+                                print("Erro ao carregar fotos: \(error)")
                             }
                         }
                     }
                     
-                    var result: [Cinema.Movie] = []
-                    for await movie in group {
-                        if let movie = movie {
-                            result.append(movie)
-                        }
+                    var movieGenres = [Cinema.Movie.Genre]()
+                    innerQueueGroup.enter()
+                    innerQueue.async(group: innerQueueGroup) {
+                        movieGenres = self.allGenres.filter { movieDTO.genre_ids.contains($0.id) }
+                            .map { Cinema.Movie.Genre(id: $0.id, name: $0.name) }
+                        innerQueueGroup.leave()
                     }
-                    return result
+                    
+                    innerQueueGroup.notify(queue: .global(qos: .userInitiated)) {
+                        let cinemaMovie = Cinema.Movie(
+                            id: movieDTO.id,
+                            voteAverage: movieDTO.vote_average,
+                            title: movieDTO.title,
+                            originalTitle: movieDTO.original_title,
+                            popularity: movieDTO.popularity,
+                            posterPath: "\(MovieConstants.imageUrl)\(movieDTO.poster_path ?? "")",
+                            backdropPath: "\(MovieConstants.imageUrl)\(movieDTO.backdrop_path ?? "")",
+                            overview: movieDTO.overview,
+                            releaseDate: DateFormatter.yyyyMMdd.date(from: movieDTO.release_date) ?? Date(),
+                            genres: movieGenres,
+                            cast: cast,
+                            photos: photos
+                        )
+
+                        fullMovies.append(cinemaMovie)
+                        print("Fim de processar um filme completo")
+                        processingGroup.leave() // Leave após completar a tarefa
+                    }
+                    
                 }
-                
-                // 3. Atualizar estado principal com segurança
-                await MainActor.run {
-                    self.movies = fullMovies
-                    self.cinema = Cinema(id: 1, movies: fullMovies)
-                    self.isLoading = false
-                }
-                
-            } catch {
-                await MainActor.run {
-                    self.error = error as? MovieError ?? .unknown
-                    self.isLoading = false
-                }
+            }
+
+            // Aguarde até que todos os filmes tenham sido processados
+            processingGroup.notify(queue: .main) {
+                self.movies = fullMovies
+                self.cinema = Cinema(id: 1, movies: fullMovies)
+                self.isLoading = false
+                print("Fim de processar todos os filmes")
             }
         }
     }
@@ -153,11 +216,20 @@ class CompanySystemViewModel {
         cinema.movies.sorted(by: Cinema.Movie.titleOrder)
     }
     
-    private func loadGenres() async throws -> [GenreDTO] {
+    private func loadGenres(completion: @escaping (Result<[GenreDTO], MovieError>) -> Void) {
         if allGenres.isEmpty {
-            allGenres = try await movieService.fetchGenres()
+            self.movieService.fetchGenres { result in
+                switch result {
+                case .failure(let error):
+                    print("Erro ao buscar filmes: \(error)")
+                    completion(.failure(MovieError.InvalidData))
+                case .success(let genr):
+                    completion(.success(genr))
+                }
+            }
+        } else{
+            completion(.success(self.allGenres))
         }
-        return allGenres
     }
     
     private struct MovieConstants {
