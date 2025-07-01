@@ -74,10 +74,11 @@ class CompanySystemViewModel {
             self.movieService.fetchUpcomingMovies { result in
                 switch result {
                 case .failure(let error):
+                    self.error = error as? MovieError ?? MovieError.unknown
                     print("Erro ao buscar filmes: \(error)")
+                    dispatchGroup.leave()
                 case .success(let movies):
                     movieDTOs = movies
-                    print("Fim do carregamento de filmes")
                     dispatchGroup.leave()
                 }
             }
@@ -89,7 +90,9 @@ class CompanySystemViewModel {
           self.loadGenres(){ result in
                 switch result {
                     case .failure(let error):
+                    self.error = error
                     print("Erro ao buscar genres: \(error)")
+                    dispatchGroup.leave()
                 case .success(let genr):
                     self.allGenres = genr
                     print("Fim do carregamento de generos")
@@ -103,6 +106,7 @@ class CompanySystemViewModel {
             if let error = error {
                 self.isLoading = false
                 self.error = error
+                print(self.error ?? MovieError.unknown)
                 return
             }
 
@@ -136,7 +140,9 @@ class CompanySystemViewModel {
                                 }
                                 innerQueueGroup.leave()
                             case .failure(let error):
+                                self.error = error as? MovieError ?? MovieError.unknown
                                 print("Erro ao carregar elenco: \(error)")
+                                innerQueueGroup.leave()
                             }
                         }
                     }
@@ -150,7 +156,9 @@ class CompanySystemViewModel {
                                 photos = photosDTO.map {"\(MovieConstants.imageUrl)\($0.file_path ?? "")"}
                                 innerQueueGroup.leave()
                             case .failure(let error):
+                                self.error = error as? MovieError ?? MovieError.unknown
                                 print("Erro ao carregar fotos: \(error)")
+                                innerQueueGroup.leave()
                             }
                         }
                     }
@@ -180,7 +188,6 @@ class CompanySystemViewModel {
                         )
 
                         fullMovies.append(cinemaMovie)
-                        print("Fim de processar um filme completo")
                         processingGroup.leave() // Leave após completar a tarefa
                     }
                     
@@ -192,7 +199,6 @@ class CompanySystemViewModel {
                 self.movies = fullMovies
                 self.cinema = Cinema(id: 1, movies: fullMovies)
                 self.isLoading = false
-                print("Fim de processar todos os filmes")
             }
         }
     }

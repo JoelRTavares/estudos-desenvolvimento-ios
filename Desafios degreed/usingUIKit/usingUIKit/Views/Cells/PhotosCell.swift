@@ -35,7 +35,6 @@ class PhotosCell: UITableViewCell {
             scrollView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             scrollView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             scrollView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            scrollView.heightAnchor.constraint(equalToConstant: 180),
             
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),

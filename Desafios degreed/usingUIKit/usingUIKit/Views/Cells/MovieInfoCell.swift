@@ -57,7 +57,7 @@ class MovieInfoCell: UITableViewCell {
             infoStackView.topAnchor.constraint(equalTo: backdropImageView.bottomAnchor, constant: 22),
             infoStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             infoStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            infoStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 8)
+            infoStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
         ])
     }
     
