@@ -15,14 +15,14 @@ struct MovieResponseDTO: Decodable {
 struct MovieDTO: Decodable {
     let id: Int
     let title: String
-    let original_title: String
-    let vote_average: Double
+    let originalTitle: String//Converter para camelCase
+    let voteAverage: Double
     let popularity: Double
-    let poster_path: String?
-    let backdrop_path: String?
+    let posterPath: String?
+    let backdropPath: String?
     let overview: String
-    let release_date: String
-    let genre_ids: [Int]
+    let releaseDate: String
+    let genreIds: [Int]
 }
 
 struct GenreResponseDTO: Decodable {
@@ -42,7 +42,7 @@ struct ActorDTO: Decodable {
     let id: Int
     let name: String
     let character: String
-    let profile_path: String?
+    let profilePath: String?
 }
 
 struct PhotosResponseDTO: Decodable{
@@ -50,5 +50,5 @@ struct PhotosResponseDTO: Decodable{
 }
 
 struct ImageDTO: Decodable {
-    let file_path: String?
+    let filePath: String?
 }

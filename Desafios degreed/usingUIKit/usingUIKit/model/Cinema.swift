@@ -38,7 +38,7 @@ struct Cinema: Identifiable{
             let id: Int
             var name: String
             var character: String
-            var profile_path: String? = nil
+            var profilePath: String? = nil
         }
         
         struct Genre: Identifiable, Equatable, Codable{

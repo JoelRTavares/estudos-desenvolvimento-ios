@@ -66,7 +66,7 @@ class CastCell: UITableViewCell {
         nameLabel.text = actor.name
         roleLabel.text = actor.character
         
-        if let profilePath = actor.profile_path, let url = URL(string: profilePath) {
+        if let profilePath = actor.profilePath, let url = URL(string: profilePath) {
             ImageUtils.loadImage(from: url, into: profileImageView)
         } else {
             profileImageView.image = UIImage(systemName: DetailsConst.Img.defaultImgNotExists)

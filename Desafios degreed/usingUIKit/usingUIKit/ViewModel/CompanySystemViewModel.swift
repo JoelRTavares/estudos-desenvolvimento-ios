@@ -70,7 +70,9 @@ class CompanySystemViewModel {
 
         // Primeiro, busca filmes
         dispatchGroup.enter()
-        queue.async(group: dispatchGroup) {
+        queue.async(group: dispatchGroup) { [weak self] in
+            guard let self = self else { return }
+            
             self.movieService.fetchUpcomingMovies { result in
                 switch result {
                 case .failure(let error):
@@ -79,6 +81,7 @@ class CompanySystemViewModel {
                     dispatchGroup.leave()
                 case .success(let movies):
                     movieDTOs = movies
+                    print("Fim do carregamento de filmes")
                     dispatchGroup.leave()
                 }
             }
@@ -86,7 +89,9 @@ class CompanySystemViewModel {
         
         // Então, buscar gêneros
         dispatchGroup.enter()
-        queue.async(group: dispatchGroup) {
+        queue.async(group: dispatchGroup) { [weak self] in
+            guard let self = self else { return }
+            
           self.loadGenres(){ result in
                 switch result {
                     case .failure(let error):
@@ -102,7 +107,9 @@ class CompanySystemViewModel {
         }
 
         // Aguarde até que todas as tarefas sejam concluídas
-        dispatchGroup.notify(queue: .main) {
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            guard let self = self else { return }
+            
             if let error = error {
                 self.isLoading = false
                 self.error = error
@@ -126,7 +133,8 @@ class CompanySystemViewModel {
                     var photos: [String] = []
                     
                     innerQueueGroup.enter()
-                    innerQueue.async(group: innerQueueGroup){
+                    innerQueue.async(group: innerQueueGroup){[weak self] in
+                        guard let self = self else { return }
                         self.movieService.fetchCast(movieId: movieDTO.id) { result in
                             switch result {
                             case .success(let cas):
@@ -135,7 +143,7 @@ class CompanySystemViewModel {
                                         id: $0.id,
                                         name: $0.name,
                                         character: $0.character,
-                                        profile_path: "\(MovieConstants.imageUrl)\($0.profile_path ?? "")"
+                                        profilePath: "\(MovieConstants.imageUrl)\($0.profilePath ?? "")"
                                     )
                                 }
                                 innerQueueGroup.leave()
@@ -153,7 +161,7 @@ class CompanySystemViewModel {
                         self.movieService.fetchPhotos(movieId: movieDTO.id) { result in
                             switch result {
                             case .success(let photosDTO):
-                                photos = photosDTO.map {"\(MovieConstants.imageUrl)\($0.file_path ?? "")"}
+                                photos = photosDTO.map {"\(MovieConstants.imageUrl)\($0.filePath ?? "")"}
                                 innerQueueGroup.leave()
                             case .failure(let error):
                                 self.error = error as? MovieError ?? MovieError.unknown
@@ -166,7 +174,7 @@ class CompanySystemViewModel {
                     var movieGenres = [Cinema.Movie.Genre]()
                     innerQueueGroup.enter()
                     innerQueue.async(group: innerQueueGroup) {
-                        movieGenres = self.allGenres.filter { movieDTO.genre_ids.contains($0.id) }
+                        movieGenres = self.allGenres.filter { movieDTO.genreIds.contains($0.id) }
                             .map { Cinema.Movie.Genre(id: $0.id, name: $0.name) }
                         innerQueueGroup.leave()
                     }
@@ -174,14 +182,14 @@ class CompanySystemViewModel {
                     innerQueueGroup.notify(queue: .global(qos: .userInitiated)) {
                         let cinemaMovie = Cinema.Movie(
                             id: movieDTO.id,
-                            voteAverage: movieDTO.vote_average,
+                            voteAverage: movieDTO.voteAverage,
                             title: movieDTO.title,
-                            originalTitle: movieDTO.original_title,
+                            originalTitle: movieDTO.originalTitle,
                             popularity: movieDTO.popularity,
-                            posterPath: "\(MovieConstants.imageUrl)\(movieDTO.poster_path ?? "")",
-                            backdropPath: "\(MovieConstants.imageUrl)\(movieDTO.backdrop_path ?? "")",
+                            posterPath: "\(MovieConstants.imageUrl)\(movieDTO.posterPath ?? "")",
+                            backdropPath: "\(MovieConstants.imageUrl)\(movieDTO.backdropPath ?? "")",
                             overview: movieDTO.overview,
-                            releaseDate: DateFormatter.yyyyMMdd.date(from: movieDTO.release_date) ?? Date(),
+                            releaseDate: DateFormatter.yyyyMMdd.date(from: movieDTO.releaseDate) ?? Date(),
                             genres: movieGenres,
                             cast: cast,
                             photos: photos
@@ -195,7 +203,9 @@ class CompanySystemViewModel {
             }
 
             // Aguarde até que todos os filmes tenham sido processados
-            processingGroup.notify(queue: .main) {
+            processingGroup.notify(queue: .main) { [weak self] in
+                guard let self = self else { return }
+                
                 self.movies = fullMovies
                 self.cinema = Cinema(id: 1, movies: fullMovies)
                 self.isLoading = false

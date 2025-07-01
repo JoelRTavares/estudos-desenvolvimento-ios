@@ -34,7 +34,9 @@ final class MovieService: MovieServiceProtocol {
                 completion(.failure(error))
             case .success(let data):
                 do {
-                    let response = try JSONDecoder().decode(MovieResponseDTO.self, from: data)
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    let response = try decoder.decode(MovieResponseDTO.self, from: data)
                     // Chamando a closure de conclusão com os filmes
                     completion(.success(response.results))
                 } catch {
@@ -56,7 +58,10 @@ final class MovieService: MovieServiceProtocol {
                     completion(.failure(error))
             case .success(let data):
                 do {
-                    let response = try JSONDecoder().decode(GenreResponseDTO.self, from: data)
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    
+                    let response = try decoder.decode(GenreResponseDTO.self, from: data)
                     completion(.success(response.genres))
                 } catch {
                     completion(.failure(error))
@@ -75,7 +80,10 @@ final class MovieService: MovieServiceProtocol {
                     completion(.failure(error))
             case .success(let data):
                 do {
-                    let response = try JSONDecoder().decode(CastResponseDTO.self, from: data)
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    
+                    let response = try decoder.decode(CastResponseDTO.self, from: data)
                     completion(.success(response.cast))
                 } catch {
                     completion(.failure(error))
@@ -92,7 +100,10 @@ final class MovieService: MovieServiceProtocol {
                     completion(.failure(error))
             case .success(let data):
                 do {
-                    let response = try JSONDecoder().decode(PhotosResponseDTO.self, from: data)
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    
+                    let response = try decoder.decode(PhotosResponseDTO.self, from: data)
                     completion(.success(response.backdrops))
                 } catch {
                     completion(.failure(error))

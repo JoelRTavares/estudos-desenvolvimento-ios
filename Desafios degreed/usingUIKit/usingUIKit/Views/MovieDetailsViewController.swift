@@ -73,7 +73,10 @@ extension MovieDetailsViewController: UITableViewDelegate, UITableViewDataSource
         case .backgroundInfo, .synopsis, .photos:
             return 1
         case .cast:
-            return min(movie?.cast.count ?? 0, DetailsConst.prefixItems)
+            if let movieCount = movie?.cast.count {
+                return min(movieCount, DetailsConst.prefixItems)
+            }
+            return 0
         }
     }
     
@@ -108,8 +111,13 @@ extension MovieDetailsViewController: UITableViewDelegate, UITableViewDataSource
             case .photos:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "photosCell", for: indexPath) as! PhotosCell
                 if let photos = movie?.photos {
-                    let photosToShow = Array(photos.prefix(DetailsConst.prefixItems))
-                    cell.configure(with: photosToShow)
+                    if let photosCount = movie?.photos.count {
+                        let photosToShow = Array(photos.prefix(min(DetailsConst.prefixItems, photosCount)))
+                        cell.configure(with: photosToShow)
+                    }
+                    else{
+                        cell.configure(with: [])
+                    }
                 }
                 return cell
             }
