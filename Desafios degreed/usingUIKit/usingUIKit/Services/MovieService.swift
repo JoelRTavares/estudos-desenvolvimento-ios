@@ -111,16 +111,6 @@ final class MovieService: MovieServiceProtocol {
             }
         }
     }
-
-    private func performRequest(endpoint: String) async throws -> Data {
-        guard let url = URL(string: endpoint) else { throw MovieError.InvalidUrl }
-        let (data, response) = try await URLSession.shared.data(from: url)
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            throw MovieError.InvalidResponse
-        }
-        return data
-    }
     
     private func performRequestSync(endpoint: String, completion: @escaping((Result<Data, Error>) -> Void)){
         guard let url = URL(string: endpoint) else { return completion(.failure(MovieError.InvalidUrl) ) }

@@ -26,7 +26,7 @@ class UIImageViewFactory {
     }
     
     static func createAspectFitImageView(cornerRadius: CGFloat = 0) -> UIImageView {
-        let imageView = createBasicImageView(isAspectFit: false)
+        let imageView = createBasicImageView(isAspectFit: true)
         imageView.layer.cornerRadius = cornerRadius
         return imageView
     }

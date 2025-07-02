@@ -15,7 +15,7 @@ struct MovieResponseDTO: Decodable {
 struct MovieDTO: Decodable {
     let id: Int
     let title: String
-    let originalTitle: String//Converter para camelCase
+    let originalTitle: String
     let voteAverage: Double
     let popularity: Double
     let posterPath: String?
