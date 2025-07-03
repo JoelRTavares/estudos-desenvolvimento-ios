@@ -18,10 +18,8 @@ protocol CompanySystemViewModelDelegate: AnyObject {
 class CompanySystemViewModel {
     weak var delegate: CompanySystemViewModelDelegate?
     
-    private(set) var cinema: Cinema
     private(set) var movies: [Cinema.Movie] = [] {
         didSet {
-            cinema = Cinema(id: 1, movies: movies)
             delegate?.didUpdateMovies(movies)
         }
     }
@@ -53,7 +51,11 @@ class CompanySystemViewModel {
             fatalError("API key não encontrada")
         }
         self.movieService = movieService ?? MovieService(apiKey: apiKey)
-        self.cinema = Cinema(id: 1, movies: [])
+    }
+    
+    convenience init (_ mov: [Cinema.Movie]){
+        self.init()
+        movies = mov
     }
     
     @MainActor
@@ -68,7 +70,7 @@ class CompanySystemViewModel {
         var movieDTOs: [MovieDTO] = []
         var error: MovieError?
 
-        // Primeiro, busca filmes
+        // Primeiro, buscar filmes
         dispatchGroup.enter()
         queue.async(group: dispatchGroup) { [weak self] in
             guard let self = self else { return }
@@ -76,7 +78,7 @@ class CompanySystemViewModel {
             self.movieService.fetchUpcomingMovies { result in
                 switch result {
                 case .failure(let error):
-                    self.error = error as? MovieError ?? MovieError.unknown
+                    self.error = error
                     print("Erro ao buscar filmes: \(error)")
                     dispatchGroup.leave()
                 case .success(let movies):
@@ -94,7 +96,7 @@ class CompanySystemViewModel {
             
           self.loadGenres(){ result in
                 switch result {
-                    case .failure(let error):
+                case .failure(let error):
                     self.error = error
                     print("Erro ao buscar genres: \(error)")
                     dispatchGroup.leave()
@@ -148,13 +150,12 @@ class CompanySystemViewModel {
                                 }
                                 innerQueueGroup.leave()
                             case .failure(let error):
-                                self.error = error as? MovieError ?? MovieError.unknown
+                                self.error = error
                                 print("Erro ao carregar elenco: \(error)")
                                 innerQueueGroup.leave()
                             }
                         }
                     }
-                    // Fetch cast e photos para cada filme em paralelo
                     
                     innerQueueGroup.enter()
                     innerQueue.async(group: innerQueueGroup) {
@@ -164,7 +165,7 @@ class CompanySystemViewModel {
                                 photos = photosDTO.map {"\(MovieConstants.imageUrl)\($0.filePath ?? "")"}
                                 innerQueueGroup.leave()
                             case .failure(let error):
-                                self.error = error as? MovieError ?? MovieError.unknown
+                                self.error = error
                                 print("Erro ao carregar fotos: \(error)")
                                 innerQueueGroup.leave()
                             }
@@ -196,7 +197,7 @@ class CompanySystemViewModel {
                         )
 
                         fullMovies.append(cinemaMovie)
-                        processingGroup.leave() // Leave após completar a tarefa
+                        processingGroup.leave()
                     }
                     
                 }
@@ -207,7 +208,6 @@ class CompanySystemViewModel {
                 guard let self = self else { return }
                 
                 self.movies = fullMovies
-                self.cinema = Cinema(id: 1, movies: fullMovies)
                 self.isLoading = false
             }
         }
@@ -215,21 +215,20 @@ class CompanySystemViewModel {
 
     
     // MARK: - Helpers
-    
     func searchByReleaseDateComparingNow(beforeNow: Bool) -> [Cinema.Movie] {
-        cinema.movies.filter { ($0.releaseDate <= Date()) == beforeNow }
+        movies.filter { ($0.releaseDate <= Date()) == beforeNow }
     }
     
     func searchMoviesByGenre(genre: Cinema.Movie.Genre) -> [Cinema.Movie] {
-        cinema.movies.filter { $0.genres.contains(genre) }
+        movies.filter { $0.genres.contains(genre) }
     }
     
     func orderByReleaseDate() -> [Cinema.Movie] {
-        cinema.movies.sorted(by: Cinema.Movie.releaseDateOrder)
+        movies.sorted(by: Cinema.Movie.releaseDateOrder)
     }
     
     func orderByTitle() -> [Cinema.Movie] {
-        cinema.movies.sorted(by: Cinema.Movie.titleOrder)
+        movies.sorted(by: Cinema.Movie.titleOrder)
     }
     
     private func loadGenres(completion: @escaping (Result<[GenreDTO], MovieError>) -> Void) {

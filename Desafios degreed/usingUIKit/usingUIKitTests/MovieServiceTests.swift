@@ -54,7 +54,7 @@ final class MovieServiceTests: XCTestCase {
             case .success:
                 XCTFail("Expected failure but got success")
             case .failure(let error):
-                XCTAssertNotNil(error)
+                XCTAssertEqual(error, MovieError.InvalidResponse)
             }
             expectation.fulfill()
         }
@@ -82,14 +82,13 @@ final class MovieServiceTests: XCTestCase {
     func testFetchGenresFailure() {
         let expectation = self.expectation(description: "Fetch genres failure")
         
-        // Simular falha com chave inválida
         let invalidService = MovieService(apiKey: "chave_api_invalida")
         invalidService.fetchGenres { result in
             switch result {
             case .success:
                 XCTFail("Expected failure but got success")
             case .failure(let error):
-                XCTAssertNotNil(error)
+                XCTAssertEqual(error, MovieError.InvalidResponse)
             }
             expectation.fulfill()
         }
@@ -100,7 +99,6 @@ final class MovieServiceTests: XCTestCase {
     func testFetchCastSuccess() {
         let expectation = self.expectation(description: "Fetch cast success")
         
-        // Primeiro, vamos buscar os filmes
         movieService.fetchUpcomingMovies { result in
             switch result {
             case .failure(let error):
@@ -110,14 +108,12 @@ final class MovieServiceTests: XCTestCase {
                 XCTAssertNotNil(movies)
                 XCTAssertTrue(movies.count > 0, "No movies in response.")
                 
-                // Obtendo o ID do primeiro filme
                 guard let movieId = movies.first?.id else {
                     XCTFail("Movie ID is not avaliable.")
                     expectation.fulfill()
                     return
                 }
                 
-                // Agora, podemos buscar o elenco do filme
                 self.movieService.fetchCast(movieId: movieId) { result in
                     switch result {
                     case .success(let cast):
@@ -135,16 +131,32 @@ final class MovieServiceTests: XCTestCase {
         waitForExpectations(timeout: 10, handler: nil)
     }
 
-    func testFetchCastFailure() {
+    func testFetchCastFailure_InvalidAPIKey() {
         let expectation = self.expectation(description: "Fetch cast failure")
         
-        // Simular falha com ID inválido
+        let invalidService = MovieService(apiKey: "invalid api key")
+        invalidService.fetchCast(movieId: -1) { result in
+            switch result {
+            case .success:
+                XCTFail("Expected failure but got success")
+            case .failure(let error):
+                XCTAssertEqual(error, MovieError.InvalidResponse)
+            }
+            expectation.fulfill()
+        }
+        
+        waitForExpectations(timeout: 10, handler: nil)
+    }
+    
+    func testFetchCastFailure_InvalidID() {
+        let expectation = self.expectation(description: "Fetch cast failure")
+        
         movieService.fetchCast(movieId: -1) { result in
             switch result {
             case .success:
                 XCTFail("Expected failure but got success")
             case .failure(let error):
-                XCTAssertNotNil(error)
+                XCTAssertEqual(error, MovieError.InvalidResponse)
             }
             expectation.fulfill()
         }
@@ -165,7 +177,6 @@ final class MovieServiceTests: XCTestCase {
                 XCTAssertNotNil(movies)
                 XCTAssertTrue(movies.count > 0, "No movies in response.")
                 
-                // Obtendo o ID do primeiro filme
                 guard let movieId = movies.first?.id else {
                     XCTFail("Movie ID is not avaliable.")
                     expectation.fulfill()
@@ -187,7 +198,7 @@ final class MovieServiceTests: XCTestCase {
         waitForExpectations(timeout: 10, handler: nil)
     }
 
-    func testFetchPhotosFailure() {
+    func testFetchPhotosFailure_invalidID() {
         let expectation = self.expectation(description: "Fetch photos failure")
         
         movieService.fetchPhotos(movieId: -1) { result in
@@ -195,7 +206,24 @@ final class MovieServiceTests: XCTestCase {
             case .success:
                 XCTFail("Expected failure but got success")
             case .failure(let error):
-                XCTAssertNotNil(error)
+                XCTAssertEqual(error, MovieError.InvalidResponse)
+            }
+            expectation.fulfill()
+        }
+        
+        waitForExpectations(timeout: 10, handler: nil)
+    }
+    
+    func testFetchPhotosFailure_invalidAPIKey() {
+        let expectation = self.expectation(description: "Fetch photos failure")
+        
+        let invalidService = MovieService(apiKey: "invalidAPIKey")
+        invalidService.fetchPhotos(movieId: -1) { result in
+            switch result {
+            case .success:
+                XCTFail("Expected failure but got success")
+            case .failure(let error):
+                XCTAssertEqual(error, MovieError.InvalidResponse)
             }
             expectation.fulfill()
         }
