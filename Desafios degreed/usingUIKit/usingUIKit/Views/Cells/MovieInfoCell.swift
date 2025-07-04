@@ -10,7 +10,7 @@ import UIKit
 class MovieInfoCell: UITableViewCell {
 
     private lazy var backdropImageView = UIImageViewFactory.createAspectFillImageView()
-    private lazy var titleLabel = UILabelFactory.createTitleLabel()
+    private lazy var titleLabel = UILabelFactory.createTitleLabel(accessibleIdentifier: "MovieTitleLabel")
     private lazy var ratingLabel = UILabelFactory.createRatingLabel()
     private lazy var durationLabel = UILabelFactory.createLabel(text: "2Hr 10m | R", fontSize: 18)
     private lazy var genresLabel = UILabelFactory.createLabel(fontSize: 18)

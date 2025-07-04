@@ -8,7 +8,7 @@
 import UIKit
 
 class SynopsisCell: UITableViewCell {
-    private lazy var synopsisLabel = UILabelFactory.createLabel(fontSize: 16, numberOfLines: 0)
+    internal lazy var synopsisLabel = UILabelFactory.createLabel(fontSize: 16, numberOfLines: 0, accessibleIdentifier: "SynopsisLabel")
     lazy var showMoreButton = UIButtonFactory.createButton(title: "Show more")
     private lazy var stackView = UIStackViewFactory.createVerticalStackView()
     
@@ -48,7 +48,7 @@ class SynopsisCell: UITableViewCell {
                 synopsisLabel.text = synopsis
                 showMoreButton.setTitle("Show less", for: .normal)
             } else {
-                let maxCharIndex = min(synopsis.count, DetailsConst.maxCharCount)
+                let maxCharIndex = DetailsConst.maxCharCount
                 synopsisLabel.text = String(synopsis.prefix(maxCharIndex)) + "..."
                 showMoreButton.setTitle("Show more", for: .normal)
             }

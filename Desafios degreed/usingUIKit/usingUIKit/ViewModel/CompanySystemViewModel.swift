@@ -112,9 +112,8 @@ class CompanySystemViewModel {
         dispatchGroup.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
             
-            if let error = error {
+            if self.error != nil {
                 self.isLoading = false
-                self.error = error
                 print(self.error ?? MovieError.unknown)
                 return
             }
@@ -125,6 +124,7 @@ class CompanySystemViewModel {
 
             // Processar cada filme
             for movieDTO in movieDTOs {
+                
                 processingGroup.enter()
                 
                 processingQueue.async(group: processingGroup) {
@@ -140,14 +140,7 @@ class CompanySystemViewModel {
                         self.movieService.fetchCast(movieId: movieDTO.id) { result in
                             switch result {
                             case .success(let cas):
-                                cast = cas.map {
-                                    Cinema.Movie.Actor(
-                                        id: $0.id,
-                                        name: $0.name,
-                                        character: $0.character,
-                                        profilePath: "\(MovieConstants.imageUrl)\($0.profilePath ?? "")"
-                                    )
-                                }
+                                cast = self.convertCastDTOIntoEntities(cas)
                                 innerQueueGroup.leave()
                             case .failure(let error):
                                 self.error = error
@@ -162,7 +155,7 @@ class CompanySystemViewModel {
                         self.movieService.fetchPhotos(movieId: movieDTO.id) { result in
                             switch result {
                             case .success(let photosDTO):
-                                photos = photosDTO.map {"\(MovieConstants.imageUrl)\($0.filePath ?? "")"}
+                                photos = self.convertImageDTOIntoStrings(photosDTO)
                                 innerQueueGroup.leave()
                             case .failure(let error):
                                 self.error = error
@@ -171,6 +164,8 @@ class CompanySystemViewModel {
                             }
                         }
                     }
+                    
+                    
                     
                     var movieGenres = [Cinema.Movie.Genre]()
                     innerQueueGroup.enter()
@@ -181,20 +176,13 @@ class CompanySystemViewModel {
                     }
                     
                     innerQueueGroup.notify(queue: .global(qos: .userInitiated)) {
-                        let cinemaMovie = Cinema.Movie(
-                            id: movieDTO.id,
-                            voteAverage: movieDTO.voteAverage,
-                            title: movieDTO.title,
-                            originalTitle: movieDTO.originalTitle,
-                            popularity: movieDTO.popularity,
-                            posterPath: "\(MovieConstants.imageUrl)\(movieDTO.posterPath ?? "")",
-                            backdropPath: "\(MovieConstants.imageUrl)\(movieDTO.backdropPath ?? "")",
-                            overview: movieDTO.overview,
-                            releaseDate: DateFormatter.yyyyMMdd.date(from: movieDTO.releaseDate) ?? Date(),
-                            genres: movieGenres,
-                            cast: cast,
-                            photos: photos
-                        )
+                        if self.error != nil {
+                            self.isLoading = false
+                            print(self.error ?? MovieError.unknown)
+                            return
+                        }
+                        
+                        let cinemaMovie = self.defineMovieWithEntities(movieDTO: movieDTO, genres: movieGenres, cast: cast, photos: photos)
 
                         fullMovies.append(cinemaMovie)
                         processingGroup.leave()
@@ -212,7 +200,36 @@ class CompanySystemViewModel {
             }
         }
     }
-
+    
+    private func convertCastDTOIntoEntities(_ cast: [ActorDTO]) -> [Cinema.Movie.Actor] {
+        cast.map {
+            Cinema.Movie.Actor(
+                id: $0.id,
+                name: $0.name,
+                character: $0.character,
+                profilePath: $0.profilePath != nil ? "\(MovieConstants.imageUrl)\($0.profilePath ?? "")" : nil
+            )
+        }
+    }
+    private func convertImageDTOIntoStrings(_ images: [ImageDTO]) -> [String]{
+        images.map {"\(MovieConstants.imageUrl)\($0.filePath ?? "")"}
+    }
+    private func defineMovieWithEntities(movieDTO: MovieDTO, genres: [Cinema.Movie.Genre], cast: [Cinema.Movie.Actor], photos: [String]) -> Cinema.Movie {
+        Cinema.Movie(
+            id: movieDTO.id,
+            voteAverage: movieDTO.voteAverage,
+            title: movieDTO.title,
+            originalTitle: movieDTO.originalTitle,
+            popularity: movieDTO.popularity,
+            posterPath: "\(MovieConstants.imageUrl)\(movieDTO.posterPath ?? "")",
+            backdropPath: "\(MovieConstants.imageUrl)\(movieDTO.backdropPath ?? "")",
+            overview: movieDTO.overview,
+            releaseDate: DateFormatter.yyyyMMdd.date(from: movieDTO.releaseDate) ?? Date(),
+            genres: genres,
+            cast: cast,
+            photos: photos
+        )
+    }
     
     // MARK: - Helpers
     func searchByReleaseDateComparingNow(beforeNow: Bool) -> [Cinema.Movie] {

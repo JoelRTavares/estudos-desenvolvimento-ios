@@ -5,31 +5,41 @@
 //  Created by Joel Rosa Tavares on 03/07/25.
 //
 
+import UIKit
+@testable import usingUIKit
 import XCTest
+
 
 final class SynopsisViewCellTests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    func testConfigure_withShortSynopsis_hidesButton() {
+        let cell = SynopsisCell(style: .default, reuseIdentifier: nil)
+        let shortSynopsis = "Curto"
+        cell.configure(with: shortSynopsis, showMore: false)
+
+        XCTAssertEqual(cell.synopsisLabel.text, shortSynopsis)
+        XCTAssertTrue(cell.showMoreButton.isHidden)
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testConfigure_withLongSynopsisAndShowMoreFalse_truncatesText() {
+        let longSynopsis = String(repeating: "a", count: DetailsConst.maxCharCount + 10)
+        let cell = SynopsisCell(style: .default, reuseIdentifier: nil)
+        cell.configure(with: longSynopsis, showMore: false)
+
+        XCTAssertTrue(cell.synopsisLabel.text!.hasSuffix("..."))
+        XCTAssertEqual(cell.synopsisLabel.text?.count, DetailsConst.maxCharCount + 3)
+        XCTAssertFalse(cell.showMoreButton.isHidden)
+        XCTAssertEqual(cell.showMoreButton.title(for: .normal), "Show more")
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    func testConfigure_withLongSynopsisAndShowMoreTrue_showsFullText() {
+        let longSynopsis = String(repeating: "a", count: DetailsConst.maxCharCount + 10)
+        let cell = SynopsisCell(style: .default, reuseIdentifier: nil)
+        cell.configure(with: longSynopsis, showMore: true)
+
+        XCTAssertEqual(cell.synopsisLabel.text, longSynopsis)
+        XCTAssertEqual(cell.showMoreButton.title(for: .normal), "Show less")
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
 
 }

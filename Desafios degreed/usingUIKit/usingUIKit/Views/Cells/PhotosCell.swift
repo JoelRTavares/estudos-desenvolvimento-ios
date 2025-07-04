@@ -51,7 +51,6 @@ class PhotosCell: UITableViewCell {
         for photo in photos {
             let photoView = UIImageViewFactory.createAspectFillImageView(cornerRadius: DetailsConst.Img.cornerRadius)
             
-            photoView.translatesAutoresizingMaskIntoConstraints = false
             let heightConstraint = photoView.heightAnchor.constraint(equalToConstant: 120)
             let widthConstraint = photoView.widthAnchor.constraint(equalTo: photoView.heightAnchor, multiplier: DetailsConst.Img.aspectRatio)
             NSLayoutConstraint.activate([heightConstraint, widthConstraint])

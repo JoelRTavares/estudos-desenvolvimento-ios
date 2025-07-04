@@ -16,25 +16,34 @@ class MockMovieService: MovieServiceProtocol {
     var castResult: Result<[ActorDTO], MovieError>?
     var photosResult: Result<[ImageDTO], MovieError>?
 
+    var fetchUpcomingMoviesCalled = false
+    var fetchGenresCalled = false
+    var fetchCastCalled = false
+    var fetchPhotosCalled = false
+    
     func fetchUpcomingMovies(completion: @escaping (Result<[MovieDTO], MovieError>) -> Void) {
+        fetchUpcomingMoviesCalled = true
         if let result = upcomingMoviesResult {
             completion(result)
         }
     }
 
     func fetchGenres(completion: @escaping (Result<[GenreDTO], MovieError>) -> Void) {
+        fetchGenresCalled = true
         if let result = genresResult {
             completion(result)
         }
     }
 
     func fetchCast(movieId: Int, completion: @escaping (Result<[ActorDTO], MovieError>) -> Void) {
+        fetchCastCalled = true
         if let result = castResult {
             completion(result)
         }
     }
 
     func fetchPhotos(movieId: Int, completion: @escaping (Result<[ImageDTO], MovieError>) -> Void) {
+        fetchPhotosCalled = true
         if let result = photosResult {
             completion(result)
         }
@@ -107,11 +116,12 @@ final class ViewModelTests: XCTestCase {
         XCTAssertEqual(mockDelegate.moviesReceived?.first?.title, "Movie Title")
         XCTAssertNil(mockDelegate.errorReceived)
         XCTAssertFalse(mockDelegate.loadingStateChanged ?? true)
+        
+        XCTAssertFalse(viewModel.movies.isEmpty)
     }
 
     @MainActor func testLoadDataError_fromMovie() {
         mockService.upcomingMoviesResult = .failure(MovieError.InvalidData)
-        
         let expectation = self.expectation(description: "Error received")
 
         let mockDelegate = MockDelegate()
@@ -126,6 +136,12 @@ final class ViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
 
         XCTAssertNotNil(mockDelegate.errorReceived)
+        XCTAssertTrue(mockService.fetchUpcomingMoviesCalled)
+        //XCTAssertFalse(mockService.fetchGenresCalled)
+        //Generos pode ser chamado, por conta dos filmes e eles sáo processados em paralelo.
+        //Assim, os generos podem ser corretamente processados antes que os filmes gerem erro.
+        XCTAssertFalse(mockService.fetchCastCalled)
+        XCTAssertFalse(mockService.fetchPhotosCalled)
     }
 
     @MainActor func testLoadDataError_fromGenre() {
@@ -149,6 +165,11 @@ final class ViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
 
         XCTAssertNotNil(mockDelegate.errorReceived)
+        XCTAssertTrue(mockService.fetchUpcomingMoviesCalled)
+        XCTAssertTrue(mockService.fetchGenresCalled)
+
+        XCTAssertFalse(mockService.fetchCastCalled)
+        XCTAssertFalse(mockService.fetchPhotosCalled)
     }
     
     @MainActor func testLoadDataError_fromCast() {
@@ -173,6 +194,13 @@ final class ViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
 
         XCTAssertNotNil(mockDelegate.errorReceived)
+        XCTAssertTrue(mockService.fetchUpcomingMoviesCalled)
+        XCTAssertTrue(mockService.fetchGenresCalled)
+
+        XCTAssertTrue(mockService.fetchCastCalled)
+        XCTAssertTrue(mockService.fetchPhotosCalled)
+        
+        XCTAssertTrue(viewModel.movies.isEmpty)
     }
     @MainActor func testLoadDataError_fromPhotos() {
         let movieDTO = MovieDTO(id: 1, title: "Title", originalTitle: "Original", voteAverage: 5.5, popularity: 8.0, posterPath: "logo", backdropPath: "logo", overview: "over", releaseDate: "2020-01-01", genreIds: [1, 2])
@@ -198,6 +226,13 @@ final class ViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
 
         XCTAssertNotNil(mockDelegate.errorReceived)
+        XCTAssertTrue(mockService.fetchUpcomingMoviesCalled)
+        XCTAssertTrue(mockService.fetchGenresCalled)
+
+        XCTAssertTrue(mockService.fetchCastCalled)
+        XCTAssertTrue(mockService.fetchPhotosCalled)
+        
+        XCTAssertTrue(viewModel.movies.isEmpty)
     }
     
     // MARK - Filtragem
