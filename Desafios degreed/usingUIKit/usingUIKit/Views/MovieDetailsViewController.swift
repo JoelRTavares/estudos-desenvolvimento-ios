@@ -31,6 +31,7 @@ class MovieDetailsViewController: UIViewController {
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupUI()
     }
     
@@ -88,6 +89,7 @@ extension MovieDetailsViewController: UITableViewDelegate, UITableViewDataSource
         switch section {
             case .backgroundInfo:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath) as! MovieInfoCell
+                cell.viewModel.delegate = self
                 if let movie = movie {
                     cell.configure(with: movie)
                 }
@@ -235,5 +237,26 @@ struct DetailsConst {
         static let spacing = 16.0
         static let defaultImgNotFound = "photo"
         static let defaultImgNotExists = "person.crop.circle"
+    }
+}
+
+
+extension MovieDetailsViewController: CinemaRealmViewModelDelegate {
+    func gotError(err: any Error) {
+        let alert = UIAlertController(title: "ERRO", message: "\(err)", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func confirmSuccessfulInsertion(movieName: String) {
+        let alert = UIAlertController(title: "Sucesso", message: "O filme \(movieName)  foi inserido com sucesso em sua lista de favoritos.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func didDetectDuplicateMovie(movieName: String) {
+        let alert = UIAlertController(title: "Atenção", message: "O filme \(movieName) já foi inserido na lista de favoritos.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
     }
 }

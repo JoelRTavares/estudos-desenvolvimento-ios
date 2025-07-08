@@ -109,3 +109,5 @@ extension FavoritesViewController: UICollectionViewDelegateFlowLayout {
         return CGSize(width: itemWidth, height: itemWidth * 5.0/3.0 + 80)
     }
 }
+
+
