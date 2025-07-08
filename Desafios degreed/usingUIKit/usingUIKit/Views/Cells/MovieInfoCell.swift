@@ -8,9 +8,14 @@
 import UIKit
 
 class MovieInfoCell: UITableViewCell {
-
+    let viewModel = CinemaRealmViewModel()
+    var movie: Cinema.Movie?
+    
     private lazy var backdropImageView = UIImageViewFactory.createAspectFillImageView()
     private lazy var titleLabel = UILabelFactory.createTitleLabel(accessibleIdentifier: "MovieTitleLabel")
+    private lazy var addFavoriteButton = UIButtonFactory.createButton(title: "ADD Favorite")
+    private lazy var titleHStackView = UIStackViewFactory.createHorizontalStackView()
+    
     private lazy var ratingLabel = UILabelFactory.createRatingLabel()
     private lazy var durationLabel = UILabelFactory.createLabel(text: "2Hr 10m | R", fontSize: 18)
     private lazy var genresLabel = UILabelFactory.createLabel(fontSize: 18)
@@ -21,6 +26,7 @@ class MovieInfoCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        //print(viewModel.fetchAllMovies())
         setupUI()
     }
     
@@ -45,7 +51,15 @@ class MovieInfoCell: UITableViewCell {
         ratingInfoStackView.addArrangedSubview(ratingLabel)
         ratingInfoStackView.addArrangedSubview(detailsStackView)
         
-        infoStackView.addArrangedSubview(titleLabel)
+        
+        addFavoriteButton.setTitleColor(.reverseBackground, for: .normal)
+        addFavoriteButton.addTarget(self, action: #selector(callAddMovieRealm), for: .touchUpInside)
+        
+        titleHStackView.addArrangedSubview(titleLabel)
+        titleHStackView.addArrangedSubview(UILabelFactory.createLabel(text: "  "))
+        titleHStackView.addArrangedSubview(addFavoriteButton)
+        
+        infoStackView.addArrangedSubview(titleHStackView)
         infoStackView.addArrangedSubview(ratingInfoStackView)
         
         NSLayoutConstraint.activate([
@@ -61,8 +75,16 @@ class MovieInfoCell: UITableViewCell {
         ])
     }
     
+    @objc func callAddMovieRealm(){
+        if let movie = movie{
+            var movie = MovieRealm(id: movie.id, name: movie.title, releaseDate: movie.releaseDate.toFormat("yyyy-MM-dd"), rating: movie.popularity, firstGenre: movie.genres[0].name, posterPath: movie.posterPath)
+            viewModel.writeNewMovie(movie)
+        }
+    }
+    
     func configure(with movie: Cinema.Movie) {
         titleLabel.text = movie.originalTitle
+        self.movie = movie
         ratingLabel.text = String(format: DetailsConst.voteFormat, movie.voteAverage)
         genresLabel.text = movie.genres.map { $0.name }.joined(separator: ", ")
         

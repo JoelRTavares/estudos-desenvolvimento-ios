@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6C3431892E1D3EC40092649B /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 6C3431882E1D3EC40092649B /* RealmSwift */; };
 		6CB868A12E0AF70600C6591B /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 6CB868A02E0AF70600C6591B /* SwiftDate */; };
+		6CD366012E1BEB52007FCA7F /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = 6CD366002E1BEB52007FCA7F /* Nimble */; };
+		6CD3660D2E1BED07007FCA7F /* Quick in Frameworks */ = {isa = PBXBuildFile; productRef = 6CD3660C2E1BED07007FCA7F /* Quick */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C3431892E1D3EC40092649B /* RealmSwift in Frameworks */,
 				6CB868A12E0AF70600C6591B /* SwiftDate in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -77,6 +81,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6CD3660D2E1BED07007FCA7F /* Quick in Frameworks */,
+				6CD366012E1BEB52007FCA7F /* Nimble in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +137,7 @@
 			name = usingUIKit;
 			packageProductDependencies = (
 				6CB868A02E0AF70600C6591B /* SwiftDate */,
+				6C3431882E1D3EC40092649B /* RealmSwift */,
 			);
 			productName = usingUIKit;
 			productReference = 6CB868462E0AE9E800C6591B /* usingUIKit.app */;
@@ -154,6 +161,8 @@
 			);
 			name = usingUIKitTests;
 			packageProductDependencies = (
+				6CD366002E1BEB52007FCA7F /* Nimble */,
+				6CD3660C2E1BED07007FCA7F /* Quick */,
 			);
 			productName = usingUIKitTests;
 			productReference = 6CB8685C2E0AE9EA00C6591B /* usingUIKitTests.xctest */;
@@ -216,6 +225,9 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				6CB8689F2E0AF27000C6591B /* XCRemoteSwiftPackageReference "SwiftDate" */,
+				6CD365FF2E1BEB52007FCA7F /* XCRemoteSwiftPackageReference "Nimble" */,
+				6CD3660B2E1BED07007FCA7F /* XCRemoteSwiftPackageReference "Quick" */,
+				6C3431872E1D3EC40092649B /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6CB868472E0AE9E800C6591B /* Products */;
@@ -576,6 +588,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		6C3431872E1D3EC40092649B /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 20.0.3;
+			};
+		};
 		6CB8689F2E0AF27000C6591B /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/malcommac/SwiftDate";
@@ -584,13 +604,44 @@
 				minimumVersion = 7.0.0;
 			};
 		};
+		6CD365FF2E1BEB52007FCA7F /* XCRemoteSwiftPackageReference "Nimble" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Quick/Nimble.git";
+			requirement = {
+				kind = exactVersion;
+				version = 13.7.1;
+			};
+		};
+		6CD3660B2E1BED07007FCA7F /* XCRemoteSwiftPackageReference "Quick" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Quick/Quick.git";
+			requirement = {
+				kind = exactVersion;
+				version = 7.6.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		6C3431882E1D3EC40092649B /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6C3431872E1D3EC40092649B /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
 		6CB868A02E0AF70600C6591B /* SwiftDate */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 6CB8689F2E0AF27000C6591B /* XCRemoteSwiftPackageReference "SwiftDate" */;
 			productName = SwiftDate;
+		};
+		6CD366002E1BEB52007FCA7F /* Nimble */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6CD365FF2E1BEB52007FCA7F /* XCRemoteSwiftPackageReference "Nimble" */;
+			productName = Nimble;
+		};
+		6CD3660C2E1BED07007FCA7F /* Quick */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6CD3660B2E1BED07007FCA7F /* XCRemoteSwiftPackageReference "Quick" */;
+			productName = Quick;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -17,9 +17,15 @@ class ViewController: UIViewController {
     
     private lazy var headerTextView: UIStackView = {
         lazy var titleTextView = UILabelFactory.createLabel(text: "CI&T Movies", fontSize: 26, alignment: .left)
-        lazy var searchImageView = UIImageViewFactory.createAspectFillSystemImageView(image: "magnifyingglass", color: .reverseBackground)
+        lazy var favoriteButtonView = UIButtonFactory.createButton(title: "★")
+        favoriteButtonView.addTarget(self, action: #selector(openFavoritesScreen), for: .touchUpInside)
+        
+        favoriteButtonView.setTitleColor(.reverseBackground, for: .normal)
+        
+        favoriteButtonView.backgroundColor = .background
 
-        let stackView = UIStackView(arrangedSubviews: [titleTextView, searchImageView])
+        
+        let stackView = UIStackView(arrangedSubviews: [titleTextView, favoriteButtonView])
         stackView.axis = .horizontal
         stackView.distribution = .fillProportionally
         
@@ -119,6 +125,7 @@ class ViewController: UIViewController {
         ])
     }
     
+    // MARK - HeaderButtons
     @objc func changeToCurrentMovies(){
         currentMovies = true
         self.movies = viewModel.searchByReleaseDateComparingNow(beforeNow: true)
@@ -152,6 +159,12 @@ class ViewController: UIViewController {
                 self.upcomingMoviesButton.transform = .identity
             }
         }
+    }
+    
+    @objc func openFavoritesScreen(){
+        let favoritesVC = FavoritesViewController()
+        favoritesVC.title = "Favorites"
+        navigationController?.pushViewController(favoritesVC, animated: true)
     }
 }
 

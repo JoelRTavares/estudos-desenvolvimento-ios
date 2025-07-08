@@ -179,6 +179,7 @@ class CompanySystemViewModel {
                         if self.error != nil {
                             self.isLoading = false
                             print(self.error ?? MovieError.unknown)
+                            processingGroup.leave()
                             return
                         }
                         
