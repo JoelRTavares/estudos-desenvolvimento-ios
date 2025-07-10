@@ -48,12 +48,13 @@ class FavoritesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .background
-
+        
         movieOnListColView.register(
             MovieRealmCollectionViewCell.self,
             forCellWithReuseIdentifier: MovieRealmCollectionViewCell.identifier
         )
         setupView()
+        viewModel.delegate = self
         movies = viewModel.fetchAllMovies()
         movieOnListColView.reloadData()
     }
@@ -94,7 +95,9 @@ extension FavoritesViewController: UICollectionViewDataSource{
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieRealmCollectionViewCell.identifier, for: indexPath) as? MovieRealmCollectionViewCell else {
             return UICollectionViewCell()
         }
-
+        cell.viewModel.delegate = self
+        cell.updateDelegate = self
+        cell.delegate = self
         cell.configure(with: movies[indexPath.item])
         return cell
     }
@@ -110,4 +113,42 @@ extension FavoritesViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+extension FavoritesViewController: CinemaRealmViewModelDelegate{
+    func didDetectDuplicateMovie(movieName: String) {
+        
+        let alert = UIAlertController(title: "Atenção", message: "O filme \(movieName) não está inserido na lista de favoritos.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func confirmSuccessfulOperation(movieName: String) {
+        let alert = UIAlertController(title: "Sucesso", message: "O filme \(movieName) foi removido de sua lista de favoritos.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+        movies = viewModel.fetchAllMovies()
+        movieOnListColView.reloadData()
+        
+    }
+    
+    func gotError(err: any Error) {
+        let alert = UIAlertController(title: "ERRO", message: "\(err).", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    
+}
 
+extension FavoritesViewController: FavoriteChangeScreenDelegate {
+    func pushNavigationScreen(_ screen: UIViewController) {
+        navigationController?.pushViewController(screen, animated: true)
+        
+    }
+}
+
+extension FavoritesViewController: UpdateMovieListDelegate {
+    func reloadMovies() {
+        movies = viewModel.fetchAllMovies()
+        movieOnListColView.reloadData()
+    }  
+}

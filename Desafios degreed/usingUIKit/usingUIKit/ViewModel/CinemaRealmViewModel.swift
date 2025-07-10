@@ -12,13 +12,16 @@ import RealmSwift
 
 protocol CinemaRealmViewModelDelegate: AnyObject {
     func didDetectDuplicateMovie(movieName: String)
-    func confirmSuccessfulInsertion(movieName: String)
+    func confirmSuccessfulOperation(movieName: String)
+    //func confirmSuccessfulDelete(movieName: String)
     func gotError(err: any Error)
 }
 
 class CinemaRealmViewModel {
     weak var delegate: CinemaRealmViewModelDelegate?
     let realm: Realm
+    
+    
     init() {
         self.realm = try! Realm()
     }
@@ -27,15 +30,55 @@ class CinemaRealmViewModel {
         return Array(movies)
     }
     
-    @objc func writeNewMovie(_ movie: MovieRealm){
+    func writeNewMovie(_ movie: MovieRealm){
         do {
             try realm.write {
                 if realm.object(ofType: MovieRealm.self, forPrimaryKey: movie.id) == nil {
                     realm.add(movie)
-                    delegate?.confirmSuccessfulInsertion(movieName: movie.name)
+                    delegate?.confirmSuccessfulOperation(movieName: movie.name)
                 } else {
                     delegate?.didDetectDuplicateMovie(movieName: movie.name)
                     //print("Movie with id \(movie.id) already exists.")
+                }
+            }
+        } catch {
+            delegate?.gotError(err: error)
+            //print("Error writing Movie with Realm: \(error)")
+        }
+    }
+    
+    func updateMovieIfExists(_ movie: MovieRealm){
+        do {
+            try realm.write {
+                if let existingMovie = realm.object(ofType: MovieRealm.self, forPrimaryKey: movie.id) {
+                    let movieName = existingMovie.name
+                    existingMovie.name = movie.name
+                    existingMovie.releaseDate = movie.releaseDate
+                    existingMovie.firstGenre = movie.firstGenre
+                    existingMovie.rating = movie.rating
+
+                    delegate?.confirmSuccessfulOperation(movieName: movieName)
+                } else {
+                    delegate?.didDetectDuplicateMovie(movieName: movie.name)
+                    //print("Movie with id \(movie.id) dont exists.")
+                }
+            }
+        } catch {
+            delegate?.gotError(err: error)
+            //print("Error writing Movie with Realm: \(error)")
+        }
+    }
+    
+    func deleteNewMovie(_ movie: MovieRealm){
+        do {
+            try realm.write {
+                if let existingMovie = realm.object(ofType: MovieRealm.self, forPrimaryKey: movie.id) {
+                    let movieName = existingMovie.name
+                    realm.delete(existingMovie)
+                    delegate?.confirmSuccessfulOperation(movieName: movieName)
+                } else {
+                    delegate?.didDetectDuplicateMovie(movieName: movie.name)
+                    //print("Movie with id \(movie.id) dont exists.")
                 }
             }
         } catch {

@@ -248,10 +248,11 @@ extension MovieDetailsViewController: CinemaRealmViewModelDelegate {
         present(alert, animated: true, completion: nil)
     }
     
-    func confirmSuccessfulInsertion(movieName: String) {
+    func confirmSuccessfulOperation(movieName: String) {
         let alert = UIAlertController(title: "Sucesso", message: "O filme \(movieName)  foi inserido com sucesso em sua lista de favoritos.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alert, animated: true, completion: nil)
+        
     }
     
     func didDetectDuplicateMovie(movieName: String) {

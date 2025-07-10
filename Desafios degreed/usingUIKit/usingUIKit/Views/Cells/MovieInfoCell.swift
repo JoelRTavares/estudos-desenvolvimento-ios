@@ -57,9 +57,8 @@ class MovieInfoCell: UITableViewCell {
         addFavoriteButton.addTarget(self, action: #selector(callAddMovieRealm), for: .touchUpInside)
         
         titleHStackView.addArrangedSubview(titleLabel)
-        titleHStackView.addArrangedSubview(UILabelFactory.createLabel(text: "  "))
         titleHStackView.addArrangedSubview(addFavoriteButton)
-        
+        titleHStackView.distribution = .fillEqually
         infoStackView.addArrangedSubview(titleHStackView)
         infoStackView.addArrangedSubview(ratingInfoStackView)
         
@@ -78,7 +77,7 @@ class MovieInfoCell: UITableViewCell {
     
     @objc func callAddMovieRealm(){
         if let movie = movie{
-            var movie = MovieRealm(id: movie.id, name: movie.title, releaseDate: movie.releaseDate.toFormat("yyyy-MM-dd"), rating: movie.popularity, firstGenre: movie.genres[0].name, posterPath: movie.posterPath)
+            let movie = MovieRealm(id: movie.id, name: movie.title, releaseDate: movie.releaseDate.toFormat("yyyy-MM-dd"), rating: movie.popularity, firstGenre: movie.genres[0].name, posterPath: movie.posterPath)
             viewModel.writeNewMovie(movie)
         }
     }
